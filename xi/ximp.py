@@ -1,13 +1,20 @@
 import numpy as np
+import warnings
+from typing import *
+from utils import *
 
-def Ximp(x, y, nc=None, m=None, ties=False):
+def Ximp(x,
+         y,
+         nc=None,
+         m=None,
+         ties=False):
     '''
     Input:
     x - design matrix
     y - response
     nc - number of target classes, integer
-    m - vector, containing number of desired partitions for each covariate . In particular, if m[i]>0, then it is the number of
-        desired partitions for the ith variable, if m[i]=0 then the ith covariate should be treated as discrete, if m[i]<0 then
+    m - vector, containing number of desired partitions for each covariate . In particular, if m[i]>0,
+    then it is the number of desired partitions for the ith variable, if m[i]=0 then the ith covariate should be treated as discrete, if m[i]<0 then
         -m[i] is the number of desired observations in each partition
     ties - if True, we return estimators acounting the variability in the ranking of ties. The default is False.
 
@@ -16,10 +23,13 @@ def Ximp(x, y, nc=None, m=None, ties=False):
 
     '''
     n, k = x.shape
+
+    m_validation(m,k)
+
     # k = x.shape[1]
     if isinstance(m, int):
         m = np.repeat(m, k)
-        print(m)
+
     if k != len(m) and k != 1:
         warnings.warn("You need to input an integer number of partition for each covariate.")
     if nc is None:
