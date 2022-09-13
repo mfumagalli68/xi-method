@@ -2,20 +2,25 @@ import numpy as np
 import warnings
 from typing import *
 from utils import *
+from xi.exceptions import *
+
 
 def Ximp(x,
          y,
          nc=None,
          m=None,
+         obs = None,
+         discrete = None,
          ties=False):
     '''
     Input:
     x - design matrix
     y - response
     nc - number of target classes, integer
-    m - vector, containing number of desired partitions for each covariate . In particular, if m[i]>0,
-    then it is the number of desired partitions for the ith variable, if m[i]=0 then the ith covariate should be treated as discrete, if m[i]<0 then
-        -m[i] is the number of desired observations in each partition
+    m - vector, containing number of desired partitions for each covariate .
+    In particular, if m[i]>0, then it is the number of desired partitions for the ith variable,
+    if m[i]=0 then the ith covariate should be treated as discrete,
+    if m[i]<0 then m[i] is the number of desired observations in each partition
     ties - if True, we return estimators acounting the variability in the ranking of ties. The default is False.
 
     Output:
@@ -24,14 +29,20 @@ def Ximp(x,
     '''
     n, k = x.shape
 
-    m_validation(m,k)
+    # m might be a dictionary {'1': 10,
+    #                          '2': 20 }
+    #
+
+    partition_validation(m, k)
+    partition_validation(obs, k)
+    partition_validation(discrete, k)
+    check_args_overlap(m,obs,discrete)
+
 
     # k = x.shape[1]
     if isinstance(m, int):
         m = np.repeat(m, k)
 
-    if k != len(m) and k != 1:
-        warnings.warn("You need to input an integer number of partition for each covariate.")
     if nc is None:
         classlist = np.unique(y)
 
@@ -42,10 +53,13 @@ def Ximp(x,
         m = np.repeat(np.ceil(np.sqrt(n)).astype('int'), k)  # default partitioning: n^1/2 samples in n^1/2 partitions
 
     (uniquey, totalmass) = np.unique(y, return_counts=True)
-    totalmass = nrmd(totalmass)
+
+    # TODO
+    # totalmass = nrmd(totalmass)
 
     if np.any(totalmass == 0):
-        warnings.warn("Empty Class. Check labels.")
+        # Extract what labels are zero and output in the message
+        XiError('Empty class. You should check labels')
 
     if ties:
         replicates = 50
