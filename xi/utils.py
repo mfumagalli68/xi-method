@@ -1,6 +1,6 @@
 import itertools
 
-from exceptions import *
+from xi.exceptions import *
 
 def partition_validation(arg, k):
 
