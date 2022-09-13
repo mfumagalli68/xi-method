@@ -5,18 +5,36 @@ from utils import *
 from xi.exceptions import *
 
 
-def Ximp(x,
-         y,
-         nc=None,
-         m=None,
-         obs = None,
-         discrete = None,
-         ties=False):
+def Ximp(x: np.array,
+         y: np.array,
+         nc: int = None,
+         m: dict = None,
+         obs: dict = None,
+         discrete: dict = None,
+         ties=False) -> Dict:
+    """
+
+    :param x: Design matrix
+    :param y: Response variable
+    :param nc: number of target classes, integer
+    :param m: A dictionary where each key represent the position of the features and value the number of desired partitions
+    for that variable. Ex : {1: 10, 2: 10}. The remaining covariates will take the default value as described in
+    [INSERT PAPER REFERENCE]
+    :param obs:  A dictionary where each key represent the position of the covariate and value the number of observation
+    for that variable in each partition. Ex : {1: 10, 2: 10}. The remaining covariates will take the default value as described in
+    [INSERT PAPER REFERENCE]
+    :param discrete: A dictionary where each key represent the position of the covariate and value as 1 stating if variable
+    should be treated as discrete. Ex : {1: 1, 2: 1}. The remaining covariates are assumed to not be discrete
+    :param ties:  if True, we return estimators acounting the variability in the ranking of ties. The default is False.
+
+    :return: Dictionary
+    """
     '''
     Input:
     x - design matrix
     y - response
     nc - number of target classes, integer
+    
     m - vector, containing number of desired partitions for each covariate .
     In particular, if m[i]>0, then it is the number of desired partitions for the ith variable,
     if m[i]=0 then the ith covariate should be treated as discrete,
@@ -27,6 +45,9 @@ def Ximp(x,
     dictionary
 
     '''
+    # In particular, if m[i]>0, then it is the number of desired partitions for the ith variable,
+    # if m[i]=0 then the ith covariate should be treated as discrete,
+    # if m[i]<0 then m[i] is the number of desired observations in each partition
     n, k = x.shape
 
     # m might be a dictionary {'1': 10,
@@ -36,8 +57,7 @@ def Ximp(x,
     partition_validation(m, k)
     partition_validation(obs, k)
     partition_validation(discrete, k)
-    check_args_overlap(m,obs,discrete)
-
+    check_args_overlap(m, obs, discrete)
 
     # k = x.shape[1]
     if isinstance(m, int):
