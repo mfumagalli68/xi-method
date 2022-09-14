@@ -5,7 +5,7 @@ from utils import *
 from xi.exceptions import *
 
 
-def Ximp(x: np.array,
+def Ximp(X: np.array,
          y: np.array,
          nc: int = None,
          m: dict = None,
@@ -25,30 +25,15 @@ def Ximp(x: np.array,
     [INSERT PAPER REFERENCE]
     :param discrete: A dictionary where each key represent the position of the covariate and value as 1 stating if variable
     should be treated as discrete. Ex : {1: 1, 2: 1}. The remaining covariates are assumed to not be discrete
-    :param ties:  if True, we return estimators acounting the variability in the ranking of ties. The default is False.
+    :param ties:  if True, we return estimators accounting for the variability in the ranking of ties. The default is False.
 
     :return: Dictionary
     """
-    '''
-    Input:
-    x - design matrix
-    y - response
-    nc - number of target classes, integer
-    
-    m - vector, containing number of desired partitions for each covariate .
-    In particular, if m[i]>0, then it is the number of desired partitions for the ith variable,
-    if m[i]=0 then the ith covariate should be treated as discrete,
-    if m[i]<0 then m[i] is the number of desired observations in each partition
-    ties - if True, we return estimators acounting the variability in the ranking of ties. The default is False.
 
-    Output:
-    dictionary
-
-    '''
     # In particular, if m[i]>0, then it is the number of desired partitions for the ith variable,
     # if m[i]=0 then the ith covariate should be treated as discrete,
     # if m[i]<0 then m[i] is the number of desired observations in each partition
-    n, k = x.shape
+    n, k = X.shape
 
     # m might be a dictionary {'1': 10,
     #                          '2': 20 }
@@ -74,8 +59,7 @@ def Ximp(x: np.array,
 
     (uniquey, totalmass) = np.unique(y, return_counts=True)
 
-    # TODO
-    # totalmass = nrmd(totalmass)
+    totalmass = nrmd(totalmass)
 
     if np.any(totalmass == 0):
         # Extract what labels are zero and output in the message
@@ -94,8 +78,8 @@ def Ximp(x: np.array,
     Q_replica = np.zeros((k, replicates))
 
     for replica in range(replicates):
-        ix = np.argsort(x + np.random.rand(*x.shape), axis=0)  # Here I am randomizing the ranking of ties
-        xs = np.sort(x, axis=0)
+        ix = np.argsort(X + np.random.rand(*X.shape), axis=0)  # Here I am randomizing the ranking of ties
+        xs = np.sort(X, axis=0)
 
         for mm in range(len(m)):
             m_part = m[mm]

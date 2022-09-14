@@ -1,6 +1,7 @@
 import itertools
 
 from xi.exceptions import *
+import numpy as np
 
 def partition_validation(arg, k):
 
@@ -33,11 +34,11 @@ def check_args_overlap(*args):
                       f"Please specify dictionaries differently.")
 
 
+def nrmd(x): # maybe this can be rewritten as a lambda function
+    if np.sum(x) == 0:
+        total = 1
+    else:
+        total = np.sum(x)
+    return(np.divide(x, total))
 
 
-if __name__=='__main__':
-    m = {'1':1,'2':2}
-    obs = {'1': 1, '4': 2, '3': 1}
-    discrete = {'1': 1, '2': 2}
-
-    check_args_overlap(m,obs,discrete)
