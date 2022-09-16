@@ -22,6 +22,8 @@ def partition_validation(arg, k):
 def check_args_overlap(*args):
 
     overlap = []
+    if not all(args):
+        return 0
     sets = tuple(set(d.keys()) for d in args)
     prods = itertools.combinations(sets,r=2)
     for s in prods:

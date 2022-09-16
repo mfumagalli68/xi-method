@@ -9,6 +9,7 @@ readme = "README.md"
 python = "^3.9"
 numpy = "^1.23.2"
 pytest = "^7.0"
+line-profiler-pycharm = "^1.1.0"
 
 
 [build-system]
