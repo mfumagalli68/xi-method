@@ -8,6 +8,7 @@ import time
 from collections import defaultdict
 import abc
 import pandas as pd
+from xi.measure import *
 
 
 # A class XI which will have method
@@ -53,7 +54,7 @@ class XIClassifier(XI):
 
         return val
 
-    def _compute_partitions(self,col,n):
+    def _compute_partitions(self, col, n):
 
         partition = self._compute_default_m(n)
 
@@ -69,11 +70,9 @@ class XIClassifier(XI):
 
         return partition
 
-
     def _get_missing_covariates_partition(self, full_columns) -> List:
 
         # Ugly af need to change
-
 
         cols = list(set().union(*self.obs, self.m))
         cols.extend(self.discrete)
@@ -81,19 +80,10 @@ class XIClassifier(XI):
 
         return missing_col
 
-    def _build_zeros_like_matrix(self,
-                                 row: int,
-                                 col: int,
-                                 names: List = None):
-        out = {}
-        for n in names:
-            out[n] = np.zeros((row, col))
-
-        return out
-
     def explain(self,
                 X: pd.DataFrame,
-                y: np.array):
+                y: np.array,
+                separation_measure="kuiper"):
 
         full_columns = X.columns
         mapping_col = {k: v for k, v in zip(range(X.shape[1]), X.columns)}
@@ -104,6 +94,7 @@ class XIClassifier(XI):
         partition_validation(self.m, k)
         partition_validation(self.obs, k)
         partition_validation(self.discrete, k)
+        # Validate separation_measure name
 
         # TODO fix it
         # check_args_overlap(self.m,
@@ -124,37 +115,68 @@ class XIClassifier(XI):
         else:
             replicates = 1
 
-        matrix_replicas = self._build_zeros_like_matrix(row=k,
-                                                        col=replicates,
-                                                        names=['B_replica',
-                                                               'D_replica',
-                                                               'M_replica',
-                                                               'H_replica',
-                                                               'K_replica',
-                                                               'Q_replica'])
+        # Input from user, one or multiple sep measure?
+        factory = SepMeasureFactory()
+
+        _sep_measure = f'{separation_measure}'
+
+        factory.register_builder(_sep_measure, KuiperBuilder())
+        Sep_i = factory.create(_sep_measure, row=n, col=k,replica=replicates)
 
         for replica in range(replicates):
 
             ix = np.argsort(X + np.random.rand(*X.shape), axis=0)
 
-            missing_cols = self._get_missing_covariates_partition(full_columns)
+            # missing_cols = self._get_missing_covariates_partition(full_columns)
 
             for idx in range(k):
                 col = mapping_col.get(idx)
-                partitions = self._compute_partitions(col=col,n=n)
+                partitions = self._compute_partitions(col=col, n=n)
 
                 indx = np.round(np.linspace(start=0,
                                             stop=n,
                                             num=partitions + 1)).astype('int')
 
-                matrix_i = self._build_zeros_like_matrix(row=partitions,
-                                                         col=k,
-                                                         names=['Bi',
-                                                                'Di',
-                                                                'Mi',
-                                                                'Ki',
-                                                                'Hi',
-                                                                'Qi'])
+                for i in range(partitions):
+                    z = y[ix[indx[i]:indx[i + 1], :]]
+                    for j in range(k):
+
+                        condmass = np.zeros(len(uniquey))
+                        for kk in range(len(uniquey)):
+                            condmass[kk] = np.count_nonzero(z[:, j] == uniquey[kk])
+                        # print(condmass)
+                        condmass = nrmd(condmass)
+
+                        dmass = np.subtract(condmass, totalmass)
+
+                        Sep_i.compute(i=i, j=j, dmass=dmass, condmass=condmass, totalmass=totalmass)
+                        # Mi[i, j] = np.max(dmass) - np.min(dmass)
+                        # Di[i, j] = np.sum(np.abs(dmass))
+                        # Power Divergence not implemented here
+                        # Kullback - Leibler
+                        # kl = np.multiply(condmass, np.log(np.divide(condmass, totalmass)))
+                        # kl[np.isnan(kl)] = 0
+                        # Ki[i, j] = np.sum(kl)
+                        # Hellinger
+                        # Hi[i, j] = 1 - np.sum(np.sqrt(np.multiply(condmass, totalmass)))
+                        # Qi[i, j] = np.sum(np.square(dmass))
+
+                Sep_i.avg()
+                # B_replica[:, replica] = np.mean(Bi, axis=0)
+                # D_replica[:, replica] = np.mean(Di, axis=0)
+                # M_replica[:, replica] = np.mean(Mi, axis=0)
+                # H_replica[:, replica] = np.mean(Hi, axis=0)
+                # K_replica[:, replica] = np.mean(Ki, axis=0)
+                # Q_replica[:, replica] = np.mean(Qi, axis=0)
+
+            # B = np.mean(B_replica, axis=1)
+            # D = np.mean(D_replica, axis=1)
+            # M = np.mean(M_replica, axis=1)
+            # K = np.mean(K_replica, axis=1)
+            # H = np.mean(H_replica, axis=1)
+            # Q = np.mean(Q_replica, axis=1)
+
+        return None  # {"l1": D, "l2": Q, "Kuiper": M, "linf": B, "KullbackLeibler": K, "Hellinger": H}
 
 
 if __name__ == '__main__':
