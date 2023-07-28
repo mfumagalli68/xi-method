@@ -31,14 +31,20 @@ class KuiperService:
     def __init__(self, row, col, replica):
         self.matrix = np.zeros((row, col))
         self.matrix_replica = np.zeros((col, replica))
+        self.value = 0
 
     def compute(self,i,j, dmass, **ignored):
         self.matrix[i, j] = np.max(np.abs(dmass))
 
 
-    def avg(self,replica):
+    def avg_replica(self,replica):
         self.matrix_replica[:, replica] = np.mean(self.matrix, axis=0)
 
+    def avg(self):
+        self.value= np.mean(self.matrix_replica, axis=1)
+
+    def reset(self,row,col):
+        self.matrix = np.zeros((row, col))
 
 class HellingerBuilder:
     def __init__(self):
@@ -55,10 +61,22 @@ class HellingerService:
     def __init__(self, row, col, replica):
         self.matrix = np.zeros((row, col))
         self.matrix_replica = np.zeros((col, replica))
+        self.value = 0
 
     def compute(self, i, j, condmass, totalmass, **ignored):
         self.matrix[i, j] = 1 - np.sum(np.sqrt(np.multiply(condmass, totalmass)))
 
+    def avg_replica(self,replica):
+        self.matrix_replica[:, replica] = np.mean(self.matrix, axis=0)
+
+    def avg(self):
+        self.value = np.mean(self.matrix_replica, axis=1)
+
+
+    def reset(self,row,col):
+        self.matrix = np.zeros((row, col))
+
+builder_mapping = {'kuiper': KuiperBuilder,'hellinger': HellingerBuilder}
 
 if __name__ == '__main__':
     factory = SepMeasureFactory()

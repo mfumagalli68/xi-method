@@ -23,7 +23,3 @@ def enum(enum_type='enum', base_classes=None, methods=None, **attrs):
     return type(str(enum_type), base_classes, methods)
 
 
-PARTITIONS = enum('partitions',
-                 OBS='OBSERVATIONS',
-                 M ='M',
-                 DISCRETE='DISCRETE')

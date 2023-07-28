@@ -1,14 +1,12 @@
-import numpy as np
-import warnings
-from typing import *
+import abc
+import time
+
+import pandas as pd
+
 from utils import *
 from xi.exceptions import *
-from xi import PARTITIONS
-import time
-from collections import defaultdict
-import abc
-import pandas as pd
 from xi.measure import *
+from operator import itemgetter
 
 
 # A class XI which will have method
@@ -83,7 +81,11 @@ class XIClassifier(XI):
     def explain(self,
                 X: pd.DataFrame,
                 y: np.array,
-                separation_measure="kuiper"):
+                replicates: int = 3,
+                separation_measure: Union[AnyStr, List] = ['kuiper', 'hellinger']):
+
+        if isinstance(separation_measure, str):
+            separation_measure = [separation_measure]
 
         full_columns = X.columns
         mapping_col = {k: v for k, v in zip(range(X.shape[1]), X.columns)}
@@ -101,8 +103,6 @@ class XIClassifier(XI):
         #                    self.obs,
         #                    self.discrete)
 
-        # self._compute_default_m(n, k)
-
         (uniquey, totalmass) = np.unique(y, return_counts=True)
 
         totalmass = nrmd(totalmass)
@@ -112,16 +112,21 @@ class XIClassifier(XI):
 
         if self.ties:
             replicates = 50
-        else:
-            replicates = 1
 
         # Input from user, one or multiple sep measure?
         factory = SepMeasureFactory()
 
-        _sep_measure = f'{separation_measure}'
+        # Check if separation measure provided is implemented TODO
+        # if builder_name is None:
+        #    raise XiError(f"Separation measure provided is not implemented.\n"
+        #                  f"Available separation measure: {list(builder_mapping.keys())}")
 
-        factory.register_builder(_sep_measure, KuiperBuilder())
-        Sep_i = factory.create(_sep_measure, row=n, col=k,replica=replicates)
+        builder_name = itemgetter(*separation_measure)(builder_mapping)
+
+        seps = []
+        for _sep_measure, builder_name in zip(separation_measure, builder_name):
+            factory.register_builder(_sep_measure, builder_name())
+            seps.append(factory.create(_sep_measure, row=n, col=k, replica=replicates))
 
         for replica in range(replicates):
 
@@ -130,6 +135,7 @@ class XIClassifier(XI):
             # missing_cols = self._get_missing_covariates_partition(full_columns)
 
             for idx in range(k):
+                print(idx)
                 col = mapping_col.get(idx)
                 partitions = self._compute_partitions(col=col, n=n)
 
@@ -149,7 +155,8 @@ class XIClassifier(XI):
 
                         dmass = np.subtract(condmass, totalmass)
 
-                        Sep_i.compute(i=i, j=j, dmass=dmass, condmass=condmass, totalmass=totalmass)
+                        for _sep in seps:
+                            _sep.compute(i=i, j=j, dmass=dmass, condmass=condmass, totalmass=totalmass)
                         # Mi[i, j] = np.max(dmass) - np.min(dmass)
                         # Di[i, j] = np.sum(np.abs(dmass))
                         # Power Divergence not implemented here
@@ -161,13 +168,21 @@ class XIClassifier(XI):
                         # Hi[i, j] = 1 - np.sum(np.sqrt(np.multiply(condmass, totalmass)))
                         # Qi[i, j] = np.sum(np.square(dmass))
 
-                Sep_i.avg()
+                for _sep in seps:
+                    _sep.avg_replica(replica=replica)
+
+
+
+
                 # B_replica[:, replica] = np.mean(Bi, axis=0)
                 # D_replica[:, replica] = np.mean(Di, axis=0)
                 # M_replica[:, replica] = np.mean(Mi, axis=0)
                 # H_replica[:, replica] = np.mean(Hi, axis=0)
                 # K_replica[:, replica] = np.mean(Ki, axis=0)
                 # Q_replica[:, replica] = np.mean(Qi, axis=0)
+
+        for _sep in seps:
+            _sep.avg()
 
             # B = np.mean(B_replica, axis=1)
             # D = np.mean(D_replica, axis=1)
@@ -176,18 +191,18 @@ class XIClassifier(XI):
             # H = np.mean(H_replica, axis=1)
             # Q = np.mean(Q_replica, axis=1)
 
-        return None  # {"l1": D, "l2": Q, "Kuiper": M, "linf": B, "KullbackLeibler": K, "Hellinger": H}
+        return seps  # {"l1": D, "l2": Q, "Kuiper": M, "linf": B, "KullbackLeibler": K, "Hellinger": H}
 
 
 if __name__ == '__main__':
-    X = np.random.normal(3, 7, size=5 * 1000)  # df_np[:, 1:11]
-    X = X.reshape((1000, 5))
-    Y = np.array(np.random.uniform(2, 4, size=1000))
+    X = np.random.normal(3, 7, size=40 * 100000)  # df_np[:, 1:11]
+    X = X.reshape((100000, 40))
+    Y = np.array(np.random.randint(2, 4, size=100000))
 
     start_time = time.perf_counter()
 
     df = pd.DataFrame(X, columns=[f"col_{i}" for i in range(X.shape[1])])
-    xi = XIClassifier(obs={'col_4': 10}, discrete=['col_1', 'col_3'], m={'col_5': 10})
+    xi = XIClassifier()
     xi.explain(X=df, y=Y)
     # P_measures = Ximp(X, Y, None, m=100, ties=False)
     end_time = time.perf_counter()
