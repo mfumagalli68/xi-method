@@ -6,6 +6,9 @@ from xi.exceptions import *
 from xi import PARTITIONS
 import time
 from collections import defaultdict
+import abc
+import pandas as pd
+
 
 # A class XI which will have method
 # - explain_instances (?) ( better just explain maybe)
@@ -21,13 +24,27 @@ class XI(object):
     def __init__(self,
                  m: Union[dict, int] = None,
                  obs: dict = None,
-                 discrete: dict = None,
+                 discrete: List = None,
+                 ties=False):
+        self.m = {} if m is None else m
+        self.obs = {} if obs is None else obs
+        self.discrete = [] if discrete is None else discrete
+        self.ties = ties
+
+    @abc.abstractmethod
+    def explain(self, *args, **kwargs):
+        pass
+
+
+class XIClassifier(XI):
+
+    def __init__(self,
+                 m: Union[dict, int] = None,
+                 obs: dict = None,
+                 discrete: List = None,
                  ties=False):
 
-        self.m = m
-        self.obs = obs
-        self.discrete = discrete
-        self.ties = ties
+        super(XIClassifier, self).__init__(m=m, obs=obs, discrete=discrete, ties=ties)
 
     def _compute_default_m(self,
                            n: int):
@@ -36,24 +53,33 @@ class XI(object):
 
         return val
 
-    def _extract_partitions(self, idx):
+    def _compute_partitions(self,col,n):
+
+        partition = self._compute_default_m(n)
+
+        if col in self.m.keys():
+            return self.m.get(col)
+
+        if col in self.discrete:
+            partition = n
+
+        if col in self.obs.keys():
+            desired_obs = self.m.get(col)
+            partition = np.ceil(n / desired_obs).astype('int')
+
+        return partition
+
+
+    def _get_missing_covariates_partition(self, full_columns) -> List:
 
         # Ugly af need to change
 
-        partitions = self.obs.get(idx, None) if self.obs is not None else None
-        if partitions is not None:
-            return partitions, PARTITIONS.OBSERVATION
 
-        partitions = self.m.get(idx, None) if self.m is not None else None
-        if partitions is not None:
-            return partitions, PARTITIONS.M
+        cols = list(set().union(*self.obs, self.m))
+        cols.extend(self.discrete)
+        missing_col = [x for x in full_columns if x not in cols]
 
-        partitions = self.discrete.get(idx, None) if self.discrete is not None else None
-        if partitions is not None:
-            return partitions, PARTITIONS.DISCRETE
-
-        if partitions is None:
-            return partitions, PARTITIONS.M
+        return missing_col
 
     def _build_zeros_like_matrix(self,
                                  row: int,
@@ -66,18 +92,23 @@ class XI(object):
         return out
 
     def explain(self,
-                X: np.array,
+                X: pd.DataFrame,
                 y: np.array):
 
+        full_columns = X.columns
+        mapping_col = {k: v for k, v in zip(range(X.shape[1]), X.columns)}
+
+        X = X.values if isinstance(X, pd.DataFrame) else X
         n, k = X.shape
 
         partition_validation(self.m, k)
         partition_validation(self.obs, k)
         partition_validation(self.discrete, k)
 
-        check_args_overlap(self.m,
-                           self.obs,
-                           self.discrete)
+        # TODO fix it
+        # check_args_overlap(self.m,
+        #                    self.obs,
+        #                    self.discrete)
 
         # self._compute_default_m(n, k)
 
@@ -103,36 +134,43 @@ class XI(object):
                                                                'Q_replica'])
 
         for replica in range(replicates):
-            ix = np.argsort(X + np.random.rand(*X.shape), axis=0)
-            for idx in range(k):
-                partitions, types = self._extract_partitions(idx)
-                if partitions is None:
-                    partitions = self._compute_default_m(n=n)
 
-                if types == PARTITIONS.OBS:
-                    partitions = len(np.unique(X[:, idx]))
-                if types == PARTITIONS.DISCRETE:
-                    partitions = np.ceil(n / (-partitions)).astype('int')
+            ix = np.argsort(X + np.random.rand(*X.shape), axis=0)
+
+            missing_cols = self._get_missing_covariates_partition(full_columns)
+
+            for idx in range(k):
+                col = mapping_col.get(idx)
+                partitions = self._compute_partitions(col=col,n=n)
 
                 indx = np.round(np.linspace(start=0,
                                             stop=n,
                                             num=partitions + 1)).astype('int')
 
+                matrix_i = self._build_zeros_like_matrix(row=partitions,
+                                                         col=k,
+                                                         names=['Bi',
+                                                                'Di',
+                                                                'Mi',
+                                                                'Ki',
+                                                                'Hi',
+                                                                'Qi'])
 
-if __name__=='__main__':
 
-    X = np.random.normal(3, 7, size=100 * 1000)  # df_np[:, 1:11]
-    X = X.reshape((1000, 100))
-    Y = np.array(np.random.uniform(2,4,size=1000))
+if __name__ == '__main__':
+    X = np.random.normal(3, 7, size=5 * 1000)  # df_np[:, 1:11]
+    X = X.reshape((1000, 5))
+    Y = np.array(np.random.uniform(2, 4, size=1000))
 
     start_time = time.perf_counter()
 
-    xi = XI()
-    xi.explain(X=X,y=Y)
-    #P_measures = Ximp(X, Y, None, m=100, ties=False)
+    df = pd.DataFrame(X, columns=[f"col_{i}" for i in range(X.shape[1])])
+    xi = XIClassifier(obs={'col_4': 10}, discrete=['col_1', 'col_3'], m={'col_5': 10})
+    xi.explain(X=df, y=Y)
+    # P_measures = Ximp(X, Y, None, m=100, ties=False)
     end_time = time.perf_counter()
     print(end_time - start_time, "seconds")
-    #print(P_measures)
+    # print(P_measures)
 
 # def Ximp(X: np.array,
 #          y: np.array,

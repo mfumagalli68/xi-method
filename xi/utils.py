@@ -31,7 +31,7 @@ def check_args_overlap(*args):
 
     overlap = set(overlap)
     if len(overlap)>0:
-        raise XiError(f"m,obs,discrete parameters can\'t have the same keys.\n"
+        raise XiError(f"Parameter m, obs, discrete can\'t have the same keys.\n"
                       f"Overlapping keys {overlap}.\n"
                       f"Please specify dictionaries differently.")
 
