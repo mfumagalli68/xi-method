@@ -1,8 +1,8 @@
 import itertools
-
+from xi.measure import builder_mapping
 from xi.exceptions import *
 import numpy as np
-
+from typing import *
 def partition_validation(arg, k):
 
     if isinstance(arg,float):
@@ -17,6 +17,17 @@ def partition_validation(arg, k):
         if keys>k:
             raise XiError("Number of keys of dictionary specifying partions"
                           "is greater than number of features")
+
+
+
+def measurement_validation(measure: Union[List,AnyStr]):
+
+    if isinstance(measure,str):
+        measure = [measure]
+    for m in measure:
+        if m not in builder_mapping.keys():
+            raise XiError(f"Separation measure {m} not implemented. Please choose "
+                          f"one or more than one from {list(builder_mapping.keys())}")
 
 
 def check_args_overlap(*args):
