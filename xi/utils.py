@@ -49,6 +49,8 @@ def check_args_overlap(*args):
     :param args:
     :return:
     """
+    if any(isinstance(i,int) for i in args):
+        return 0
     overlap = []
     sets = tuple(set(d) for d in args)
     prods = itertools.combinations(sets, r=2)
