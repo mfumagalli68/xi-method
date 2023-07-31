@@ -27,7 +27,7 @@ def partition_validation(arg: Union[int,Dict,float], k: int) -> None:
                           "is greater than number of features")
 
 
-def measurement_validation(measure: Union[List, AnyStr]) -> None:
+def separation_measurement_validation(measure: Union[List, AnyStr]) -> None:
     """
     Validate separation measurement, if not implemented throw an error
 
@@ -38,7 +38,7 @@ def measurement_validation(measure: Union[List, AnyStr]) -> None:
         measure = [measure]
     for m in measure:
         if m not in builder_mapping.keys():
-            raise XiError(f"Separation measure {m} not implemented. Please choose "
+            raise XiError(f"Separation measurement {m} not implemented. Please choose "
                           f"one or more than one from {list(builder_mapping.keys().pop('Custom'))}")
 
 

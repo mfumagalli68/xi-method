@@ -106,7 +106,7 @@ class XIClassifier(XI):
         partition_validation(self.obs, k)
         partition_validation(self.discrete, k)
 
-        measurement_validation(measure=separation_measure)
+        separation_measurement_validation(measure=separation_measure)
 
         # TODO fix it
         check_args_overlap(self.m,

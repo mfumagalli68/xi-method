@@ -17,7 +17,7 @@ class SepMeasureFactory:
         return builder(**kwargs)
 
 
-class Separation:
+class SeparationMeasurement:
 
     def __init__(self, row, col, replica):
         self.matrix = np.zeros((row, col))
@@ -34,7 +34,7 @@ class Separation:
         self.matrix = np.zeros((row, col))
 
 
-class L1Service(Separation):
+class L1Service(SeparationMeasurement):
 
     def __init__(self, row, col, replica):
         super(L1Service, self).__init__(row, col, replica)
@@ -56,7 +56,7 @@ class L1Builder:
         return self._instance
 
 
-class L2Service(Separation):
+class L2Service(SeparationMeasurement):
 
     def __init__(self, row, col, replica):
         super(L2Service, self).__init__(row, col, replica)
@@ -78,7 +78,7 @@ class L2Builder:
         return self._instance
 
 
-class KLService(Separation):
+class KLService(SeparationMeasurement):
 
     def __init__(self, row, col, replica):
         super(KLService, self).__init__(row, col, replica)
@@ -114,7 +114,7 @@ class KuiperBuilder:
         return self._instance
 
 
-class KuiperService(Separation):
+class KuiperService(SeparationMeasurement):
 
     def __init__(self, row, col, replica):
         super(KuiperService, self).__init__(row, col, replica)
@@ -136,7 +136,7 @@ class HellingerBuilder:
         return self._instance
 
 
-class HellingerService(Separation):
+class HellingerService(SeparationMeasurement):
 
     def __init__(self, row, col, replica):
         super(HellingerService, self).__init__(row, col, replica)
