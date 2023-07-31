@@ -1,10 +1,17 @@
 import itertools
-from xi.measure import builder_mapping
 from xi.exceptions import *
 import numpy as np
 from typing import *
-def partition_validation(arg, k):
+from xi.separation.measure import *
 
+
+def partition_validation(arg, k):
+    """
+
+    :param arg:
+    :param k:
+    :return:
+    """
     if isinstance(arg,float):
         raise TypeError('Argument need to be a positive integer')
 
@@ -21,21 +28,23 @@ def partition_validation(arg, k):
 
 
 def measurement_validation(measure: Union[List,AnyStr]):
+    """
 
+    :param measure:
+    :return:
+    """
     if isinstance(measure,str):
         measure = [measure]
     for m in measure:
         if m not in builder_mapping.keys():
             raise XiError(f"Separation measure {m} not implemented. Please choose "
-                          f"one or more than one from {list(builder_mapping.keys())}")
+                          f"one or more than one from {list(builder_mapping.keys().pop('Custom'))}")
 
 
 def check_args_overlap(*args):
 
     overlap = []
-    if not all(args):
-        return 0
-    sets = tuple(set(d.keys()) for d in args)
+    sets = tuple(set(d) for d in args)
     prods = itertools.combinations(sets,r=2)
     for s in prods:
         overlap.extend(set.intersection(*s))
@@ -44,7 +53,7 @@ def check_args_overlap(*args):
     if len(overlap)>0:
         raise XiError(f"Parameter m, obs, discrete can\'t have the same keys.\n"
                       f"Overlapping keys {overlap}.\n"
-                      f"Please specify dictionaries differently.")
+                      f"Please specify parameters differently.")
 
 
 def nrmd(x): # maybe this can be rewritten as a lambda function

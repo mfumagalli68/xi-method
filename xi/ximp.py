@@ -5,9 +5,10 @@ import pandas as pd
 
 from utils import *
 from xi.exceptions import *
-from xi.measure import *
+from xi.separation.measure import *
 from operator import itemgetter
-from sklearn.datasets import load_wine
+
+import inspect
 
 
 # A class XI which will have method
@@ -55,7 +56,7 @@ class XIClassifier(XI):
 
     def _compute_partitions(self, col, n):
 
-        if isinstance(self.m,int):
+        if isinstance(self.m, int):
             return self.m
 
         partition = self._compute_default_m(n)
@@ -71,16 +72,6 @@ class XIClassifier(XI):
             partition = np.ceil(n / desired_obs).astype('int')
 
         return partition
-
-    def _get_missing_covariates_partition(self, full_columns) -> List:
-
-        # Ugly af need to change
-
-        cols = list(set().union(*self.obs, self.m))
-        cols.extend(self.discrete)
-        missing_col = [x for x in full_columns if x not in cols]
-
-        return missing_col
 
     def explain(self,
                 X: pd.DataFrame,
@@ -103,9 +94,9 @@ class XIClassifier(XI):
         measurement_validation(measure=separation_measure)
 
         # TODO fix it
-        # check_args_overlap(self.m,
-        #                    self.obs,
-        #                    self.discrete)
+        check_args_overlap(self.m,
+                           self.obs,
+                           self.discrete)
 
         (uniquey, totalmass) = np.unique(y, return_counts=True)
 
@@ -177,23 +168,32 @@ if __name__ == '__main__':
     # X = np.random.normal(3, 7, size=5 * 100000)  # df_np[:, 1:11]
     # X = X.reshape((100000, 5))
     # reading from the file
-    X = pd.read_csv("C:\\Users\\marco.fumagalli\\xi\\tests\\winequality-red.csv",sep=";")
-
+    X = pd.read_csv("C:\\Users\\marco.fumagalli\\xi\\tests\\winequality-red.csv", sep=";")
 
     Y = X.quality.values
-    X.drop(columns='quality',inplace=True)
+    X.drop(columns='quality', inplace=True)
 
-    #Y = np.array(np.random.randint(2, 4, size=100000))
+    # Y = np.array(np.random.randint(2, 4, size=100000))
 
     start_time = time.perf_counter()
 
+
     # df = pd.DataFrame(X, columns=[f"col_{i}" for i in range(X.shape[1])])
+
+    def compute_attempt(dmass, condmass, totalmass,**kwargs):
+        return np.sum(np.sqrt(np.multiply(condmass, totalmass)))
+
+
+    #cust = CustomSeparationMeasure(separation_measure={'test':compute_attempt})
+    #cust.register()
+
+
     xi = XIClassifier(m=20)
-    P_measures = xi.explain(X=X, y=Y, separation_measure='l1')
+    P_measures = xi.explain(X=X, y=Y, separation_measure='L1')
     # P_measures = Ximp(X, Y, None, m=100, ties=False)
     end_time = time.perf_counter()
     print(end_time - start_time, "seconds")
-    val = P_measures.get('l1').value
+    val = P_measures.get('L1').value
     print(val)
     print(X.columns)
 
