@@ -5,7 +5,7 @@ import pandas as pd
 
 from utils import *
 from xi.exceptions import *
-from xi.separation.measure import *
+from xi.separation.measurement import *
 from operator import itemgetter
 
 import inspect
@@ -48,13 +48,17 @@ class XIClassifier(XI):
         super(XIClassifier, self).__init__(m=m, obs=obs, discrete=discrete, ties=ties)
 
     def _compute_default_m(self,
-                           n: int):
-
+                           n: int) -> int:
+        """
+        Compute default partition number
+        :param n:
+        :return:
+        """
         val = np.ceil(np.sqrt(n)).astype('int')
 
         return val
 
-    def _compute_partitions(self, col, n):
+    def _compute_partitions(self, col: AnyStr, n: int) -> int:
 
         if isinstance(self.m, int):
             return self.m
@@ -77,8 +81,19 @@ class XIClassifier(XI):
                 X: pd.DataFrame,
                 y: np.array,
                 replicates: int = 1,
-                separation_measure: Union[AnyStr, List] = ['kuiper', 'hellinger']):
+                separation_measure: Union[AnyStr, List] = ['kuiper', 'hellinger']) -> Dict:
+        """
 
+        :param X: Design matrix, without target variable
+        :param y: target variable
+        :param replicates: number of replications
+        :param separation_measure: Separation measurement.
+        Read documentation for the implemented ones.
+        You can specify one or more than one as list.
+
+        :return: dictionary mapping separation measurement name to object containing explanations
+        for each covariates
+        """
         if isinstance(separation_measure, str):
             separation_measure = [separation_measure]
 
@@ -180,13 +195,12 @@ if __name__ == '__main__':
 
     # df = pd.DataFrame(X, columns=[f"col_{i}" for i in range(X.shape[1])])
 
-    def compute_attempt(dmass, condmass, totalmass,**kwargs):
+    def compute_attempt(dmass, condmass, totalmass, **kwargs):
         return np.sum(np.sqrt(np.multiply(condmass, totalmass)))
 
 
-    #cust = CustomSeparationMeasure(separation_measure={'test':compute_attempt})
-    #cust.register()
-
+    # cust = CustomSeparationMeasure(separation_measure={'test':compute_attempt})
+    # cust.register()
 
     xi = XIClassifier(m=20)
     P_measures = xi.explain(X=X, y=Y, separation_measure='L1')
