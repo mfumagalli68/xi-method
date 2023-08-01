@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import pandas as pd
+import numpy as np
 
 
 def plot(df, type, explain, k=10, **options):
@@ -10,10 +11,9 @@ def plot(df, type, explain, k=10, **options):
 
 
 def _tabular_plot(df, explain, k, **options):
-
     title = options.get('title', 'Explainations')
     figsize = options.get('figsize', (10, 10))
-    color = options.get('color','blue')
+    color = options.get('color', 'blue')
 
     fig = plt.figure(figsize=figsize)
 
@@ -21,7 +21,7 @@ def _tabular_plot(df, explain, k, **options):
             'value': explain}
     df = pd.DataFrame(data=data, columns=['variable', 'value'])
     df = df.sort_values('value', ascending=True).reset_index(drop=True)
-    if df.shape[0]>k:
+    if df.shape[0] > k:
         df = df.iloc[:k]
 
     df = df.sort_values('value', ascending=False).reset_index(drop=True)
@@ -31,5 +31,7 @@ def _tabular_plot(df, explain, k, **options):
     plt.show()
 
 
-def _image_plot(df):
-    pass
+def _image_plot(df):  # df array
+
+    plt.imshow(df, cmap='hot', interpolation='nearest')
+    plt.show()
