@@ -28,6 +28,7 @@ class XI(object):
                  m: Union[dict, int] = None,
                  obs: dict = None,
                  discrete: List = None,
+                 type: AnyStr = 'classifier',
                  ties=False,
                  grid: int = 100):
         self.m = {} if m is None else m
@@ -35,6 +36,7 @@ class XI(object):
         self.discrete = [] if discrete is None else discrete
         self.ties = ties
         self.grid = grid
+        self.type = self.type
 
     @abc.abstractmethod
     def explain(self, *args, **kwargs):
@@ -47,9 +49,10 @@ class XIClassifier(XI):
                  m: Union[dict, int] = None,
                  obs: dict = None,
                  discrete: List = None,
-                 ties=False):
+                 ties=False,
+                 type='classifier'):
 
-        super(XIClassifier, self).__init__(m=m, obs=obs, discrete=discrete, ties=ties)
+        super(XIClassifier, self).__init__(m=m, obs=obs, discrete=discrete, ties=ties, type=type)
 
     def _compute_default_m(self,
                            n: int) -> int:
@@ -171,7 +174,7 @@ class XIClassifier(XI):
                         dmass = np.subtract(condmass, totalmass)
 
                         for _, _sep in seps.items():
-                            _sep.compute(i=i, j=j, dmass=dmass, condmass=condmass, totalmass=totalmass)
+                            _sep.compute(i=i, j=j, dmass=dmass, condmass=condmass, totalmass=totalmass, type=self.type)
 
                 for _, _sep in seps.items():
                     _sep.avg_replica(replica=replica)
@@ -187,8 +190,9 @@ class XIRegressor(XI):
     def __init__(self,
                  m: Union[dict, int] = None,
                  grid: int = None,
-                 ties=False):
-        super(XIRegressor, self).__init__(m=m, grid=grid, ties=ties)
+                 ties=False,
+                 type='regressor'):
+        super(XIRegressor, self).__init__(m=m, grid=grid, ties=ties, type=type)
 
     def explain(self,
                 X: pd.DataFrame,
@@ -207,7 +211,6 @@ class XIRegressor(XI):
         partition_validation(self.m, k)
 
         separation_measurement_validation(measure=separation_measure)
-
 
         histogram_dist = rv_histogram(np.histogram(y, bins='auto'))
         y_grid = np.linspace(np.min(y), np.max(y), self.grid)
