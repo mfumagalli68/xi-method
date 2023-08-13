@@ -215,8 +215,8 @@ class XIRegressor(XI):
         histogram_dist = rv_histogram(np.histogram(y, bins='auto'))
         y_grid = np.linspace(np.min(y), np.max(y), self.grid)
 
-        unconditional_distribution = [histogram_dist.pdf(point) for point in y_grid]
-        unconditional_distribution = nrmd(unconditional_distribution)
+        totalmass = [histogram_dist.pdf(point) for point in y_grid]
+        totalmass = nrmd(totalmass)
 
         if self.ties:
             replicates = 50
@@ -241,28 +241,27 @@ class XIRegressor(XI):
             for idx in range(k):
                 print(idx)
                 col = mapping_col.get(idx)
-                partitions = self._compute_partitions(col=col, n=n)
 
                 # builder registered. First iteration
                 # builder will create object.
                 # Second iteration it won't overwrite since it's already created.
                 for _sep_measure, builder_name in zip(separation_measure, builder_names):
-                    seps[_sep_measure] = factory.create(_sep_measure, row=partitions, col=k, replica=replicates)
+                    seps[_sep_measure] = factory.create(_sep_measure, row=self.m, col=k, replica=replicates)
 
                 indx = np.round(np.linspace(start=0,
                                             stop=n,
-                                            num=partitions + 1)).astype('int')
+                                            num=self.m + 1)).astype('int')
 
-                for i in range(partitions):
-                    z = y[ix[indx[i]:indx[i + 1], :]]
+                for i in range(self.m):
+
                     for j in range(k):
                         z = y[ix[indx[i]:indx[i + 1]]]
                         dmass = rv_histogram(np.histogram(z, bins='auto'))
-                        condmass = [condmass.pdf(point) for point in y_grid]
+                        condmass = [dmass.pdf(point) for point in y_grid]
                         condmass = nrmd(condmass)
 
                         for _, _sep in seps.items():
-                            _sep.compute(i=i, j=j, dmass=dmass, condmass=condmass, totalmass=None)
+                            _sep.compute(i=i, j=j, dmass=dmass, condmass=condmass, totalmass=totalmass)
 
                 for _, _sep in seps.items():
                     _sep.avg_replica(replica=replica)
