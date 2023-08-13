@@ -255,8 +255,8 @@ class XIRegressor(XI):
                     for j in range(k):
                         z = y[ix[indx[i]:indx[i + 1]]]
                         dmass = rv_histogram(np.histogram(z, bins='auto'))
-                        condmass = [histogram_dist_conditional.pdf(point) for point in y_grid]
-                        conditional_distribution = nrmd(conditional_distribution)
+                        condmass = [condmass.pdf(point) for point in y_grid]
+                        condmass = nrmd(condmass)
 
                         for _, _sep in seps.items():
                             _sep.compute(i=i, j=j, dmass=dmass, condmass=condmass, totalmass=None)

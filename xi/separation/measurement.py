@@ -24,6 +24,20 @@ class SeparationMeasurement:
         self.matrix_replica = np.zeros((col, replica))
         self.value = 0
 
+    def compute(self, i, j, **kwargs):
+
+        type = kwargs.get('type')
+        if type == 'regressor':
+            self.matrix[i, j] = self._regressor(**kwargs)
+        else:
+            self.matrix[i, j] = self.compute(**kwargs)
+
+    def _regressor(self, **kwargs):
+        pass
+
+    def _compute(self, **kwargs):
+        pass
+
     def avg_replica(self, replica):
         self.matrix_replica[:, replica] = np.mean(self.matrix, axis=0)
 
@@ -38,9 +52,6 @@ class L1Service(SeparationMeasurement):
 
     def __init__(self, row, col, replica):
         super(L1Service, self).__init__(row, col, replica)
-
-    def compute(self, i, j, dmass, **kwargs):
-        self.matrix[i, j] = self._compute(dmass=dmass)
 
     def _compute(self, dmass):
         return np.sum(np.abs(dmass))
@@ -61,9 +72,6 @@ class L2Service(SeparationMeasurement):
     def __init__(self, row, col, replica):
         super(L2Service, self).__init__(row, col, replica)
 
-    def compute(self, i, j, dmass, **kwargs):
-        self.matrix[i, j] = self._compute(dmass=dmass)
-
     def _compute(self, dmass):
         return np.sum(np.square(dmass))
 
@@ -83,15 +91,15 @@ class KLService(SeparationMeasurement):
     def __init__(self, row, col, replica):
         super(KLService, self).__init__(row, col, replica)
 
-    def compute(self, i, j, dmass, **kwargs):
-        self.matrix[i, j] = self._compute(dmass=dmass, **kwargs)
-
     def _compute(self, dmass, **kwargs):
         condmass = kwargs.get('condmass')
         totalmass = kwargs.get('totalmass')
         kl = np.multiply(condmass, np.log(np.divide(condmass, totalmass)))
         kl[np.isnan(kl)] = 0
         return np.sum(kl)
+
+    def _regressor(self, totalmass, condmass):
+        pass
 
 
 class KLBuilder:
@@ -119,9 +127,6 @@ class KuiperService(SeparationMeasurement):
     def __init__(self, row, col, replica):
         super(KuiperService, self).__init__(row, col, replica)
 
-    def compute(self, i, j, dmass, **ignored):
-        self.matrix[i, j] = np.max(np.abs(dmass))
-
     def _compute(self, dmass, **ignored):
         return np.max(np.abs(dmass))
 
@@ -140,9 +145,6 @@ class HellingerService(SeparationMeasurement):
 
     def __init__(self, row, col, replica):
         super(HellingerService, self).__init__(row, col, replica)
-
-    def compute(self, i, j, condmass, totalmass, **ignored):
-        self.matrix[i, j] = self._compute(condmass, totalmass)
 
     def _compute(self, condmass, totalmass, **ignored):
         return 1 - np.sum(np.sqrt(np.multiply(condmass, totalmass)))
