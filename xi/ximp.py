@@ -2,6 +2,8 @@ import abc
 import time
 
 import pandas as pd
+from scipy.special import rel_entr
+from scipy.stats import rv_histogram
 
 from utils import *
 from xi.exceptions import *
@@ -26,11 +28,13 @@ class XI(object):
                  m: Union[dict, int] = None,
                  obs: dict = None,
                  discrete: List = None,
-                 ties=False):
+                 ties=False,
+                 grid: int = 100):
         self.m = {} if m is None else m
         self.obs = {} if obs is None else obs
         self.discrete = [] if discrete is None else discrete
         self.ties = ties
+        self.grid = grid
 
     @abc.abstractmethod
     def explain(self, *args, **kwargs):
@@ -178,6 +182,94 @@ class XIClassifier(XI):
         return seps  # {"l1": D, "l2": Q, "Kuiper": M, "linf": B, "KullbackLeibler": K, "Hellinger": H}
 
 
+class XIRegressor(XI):
+
+    def __init__(self,
+                 m: Union[dict, int] = None,
+                 grid: int = None,
+                 ties=False):
+        super(XIRegressor, self).__init__(m=m, grid=grid, ties=ties)
+
+    def explain(self,
+                X: pd.DataFrame,
+                y: np.array,
+                replicates: int = 1,
+                separation_measure: Union[AnyStr, List] = ['kuiper', 'hellinger']) -> Dict:
+
+        if isinstance(separation_measure, str):
+            separation_measure = [separation_measure]
+
+        mapping_col = {k: v for k, v in zip(range(X.shape[1]), X.columns)}
+
+        X = X.values if isinstance(X, pd.DataFrame) else X
+        n, k = X.shape
+
+        partition_validation(self.m, k)
+
+        separation_measurement_validation(measure=separation_measure)
+
+
+        histogram_dist = rv_histogram(np.histogram(y, bins='auto'))
+        y_grid = np.linspace(np.min(y), np.max(y), self.grid)
+
+        unconditional_distribution = [histogram_dist.pdf(point) for point in y_grid]
+        unconditional_distribution = nrmd(unconditional_distribution)
+
+        if self.ties:
+            replicates = 50
+
+        # Input from user, one or multiple sep measure?
+        factory = SepMeasureFactory()
+
+        builder_names = itemgetter(*separation_measure)(builder_mapping)
+        if isinstance(builder_names, type):
+            builder_names = [builder_names]
+
+        seps = {}
+
+        # register builder
+        for _sep_measure, builder_name in zip(separation_measure, builder_names):
+            factory.register_builder(_sep_measure, builder_name())
+
+        for replica in range(replicates):
+
+            ix = np.argsort(X + np.random.rand(*X.shape), axis=0)
+
+            for idx in range(k):
+                print(idx)
+                col = mapping_col.get(idx)
+                partitions = self._compute_partitions(col=col, n=n)
+
+                # builder registered. First iteration
+                # builder will create object.
+                # Second iteration it won't overwrite since it's already created.
+                for _sep_measure, builder_name in zip(separation_measure, builder_names):
+                    seps[_sep_measure] = factory.create(_sep_measure, row=partitions, col=k, replica=replicates)
+
+                indx = np.round(np.linspace(start=0,
+                                            stop=n,
+                                            num=partitions + 1)).astype('int')
+
+                for i in range(partitions):
+                    z = y[ix[indx[i]:indx[i + 1], :]]
+                    for j in range(k):
+                        z = y[ix[indx[i]:indx[i + 1]]]
+                        dmass = rv_histogram(np.histogram(z, bins='auto'))
+                        condmass = [histogram_dist_conditional.pdf(point) for point in y_grid]
+                        conditional_distribution = nrmd(conditional_distribution)
+
+                        for _, _sep in seps.items():
+                            _sep.compute(i=i, j=j, dmass=dmass, condmass=condmass, totalmass=None)
+
+                for _, _sep in seps.items():
+                    _sep.avg_replica(replica=replica)
+
+        for _, _sep in seps.items():
+            _sep.avg()
+
+        return seps
+
+
 if __name__ == '__main__':
     # X = np.random.normal(3, 7, size=5 * 100000)  # df_np[:, 1:11]
     # X = X.reshape((100000, 5))
@@ -210,4 +302,3 @@ if __name__ == '__main__':
     # val = P_measures.get('L1').value
     # print(val)
     # print(X.columns)
-
