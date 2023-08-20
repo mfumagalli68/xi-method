@@ -1,6 +1,8 @@
 from typing import *
 import numpy as np
 import inspect
+from xi.utils import nrmd
+from scipy.special import rel_entr
 
 
 class SepMeasureFactory:
@@ -30,7 +32,7 @@ class SeparationMeasurement:
         if type == 'regressor':
             self.matrix[i, j] = self._regressor(**kwargs)
         else:
-            self.matrix[i, j] = self.compute(**kwargs)
+            self.matrix[i, j] = self._compute(**kwargs)
 
     def _regressor(self, **kwargs):
         pass
@@ -99,7 +101,8 @@ class KLService(SeparationMeasurement):
         return np.sum(kl)
 
     def _regressor(self, totalmass, condmass):
-        pass
+        return np.sum(rel_entr(nrmd(totalmass[condmass != 0]),
+                               nrmd(condmass[condmass != 0])))
 
 
 class KLBuilder:

@@ -174,7 +174,7 @@ class XIClassifier(XI):
                         dmass = np.subtract(condmass, totalmass)
 
                         for _, _sep in seps.items():
-                            _sep.compute(i=i, j=j, dmass=dmass, condmass=condmass, totalmass=totalmass, type=self.type)
+                            _sep._compute(i=i, j=j, dmass=dmass, condmass=condmass, totalmass=totalmass, type=self.type)
 
                 for _, _sep in seps.items():
                     _sep.avg_replica(replica=replica)
