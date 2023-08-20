@@ -1,9 +1,8 @@
 import itertools
-from xi.exceptions import *
-import numpy as np
+from xi.exceptions import XiError
 from typing import *
-from xi.separation.measurement import *
-
+import numpy as np
+from xi.separation.measurement import builder_mapping
 
 def partition_validation(arg: Union[int,Dict,float], k: int) -> None:
     """
@@ -62,11 +61,8 @@ def check_args_overlap(*args):
         raise XiError(f"Parameter m, obs, discrete can\'t have the same keys.\n"
                       f"Overlapping keys {overlap}.\n"
                       f"Please specify parameters differently.")
-
-
-def nrmd(x):  # maybe this can be rewritten as a lambda function
-    if np.sum(x) == 0:
-        total = 1
     else:
-        total = np.sum(x)
-    return np.divide(x, total)
+        return 1
+
+
+

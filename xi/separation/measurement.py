@@ -1,9 +1,14 @@
 from typing import *
 import numpy as np
 import inspect
-from xi.utils import nrmd
 from scipy.special import rel_entr
 
+def nrmd(x):  # maybe this can be rewritten as a lambda function
+    if np.sum(x) == 0:
+        total = 1
+    else:
+        total = np.sum(x)
+    return np.divide(x, total)
 
 class SepMeasureFactory:
     def __init__(self):
@@ -55,7 +60,7 @@ class L1Service(SeparationMeasurement):
     def __init__(self, row, col, replica):
         super(L1Service, self).__init__(row, col, replica)
 
-    def _compute(self, dmass):
+    def _compute(self, dmass,**kwargs):
         return np.sum(np.abs(dmass))
 
 
@@ -74,7 +79,7 @@ class L2Service(SeparationMeasurement):
     def __init__(self, row, col, replica):
         super(L2Service, self).__init__(row, col, replica)
 
-    def _compute(self, dmass):
+    def _compute(self, dmass,**kwargs):
         return np.sum(np.square(dmass))
 
 
@@ -202,8 +207,8 @@ builder_mapping = {'Kuiper': KuiperBuilder,
                    'L1': L1Builder,
                    'L2': L2Builder}
 
-if __name__ == '__main__':
-    factory = SepMeasureFactory()
-    factory.register_builder('KUIPER', KuiperBuilder())
-    factory.create('KUIPER', row=100, col=20)
-    print(factory)
+# if __name__ == '__main__':
+#     factory = SepMeasureFactory()
+#     factory.register_builder('KUIPER', KuiperBuilder())
+#     factory.create('KUIPER', row=100, col=20)
+#     print(factory)

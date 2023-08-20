@@ -36,7 +36,7 @@ class XI(object):
         self.discrete = [] if discrete is None else discrete
         self.ties = ties
         self.grid = grid
-        self.type = self.type
+        self.type = type
 
     @abc.abstractmethod
     def explain(self, *args, **kwargs):
@@ -174,7 +174,7 @@ class XIClassifier(XI):
                         dmass = np.subtract(condmass, totalmass)
 
                         for _, _sep in seps.items():
-                            _sep._compute(i=i, j=j, dmass=dmass, condmass=condmass, totalmass=totalmass, type=self.type)
+                            _sep.compute(i=i, j=j, dmass=dmass, condmass=condmass, totalmass=totalmass, type=self.type)
 
                 for _, _sep in seps.items():
                     _sep.avg_replica(replica=replica)
