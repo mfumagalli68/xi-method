@@ -1,10 +1,12 @@
+import os.path
+
 from xi.ximp import *
-from pathlib import Path
+
 import numpy as np
 def test_separation_measurement():
 
     np.random.seed(3)
-    df = pd.read_csv(Path('data', 'winequality-red.csv'), sep=";")
+    df = pd.read_csv(os.path.abspath('data/winequality-red.csv'), sep=";")
     Y = df.quality.values
     df.drop(columns='quality', inplace=True)
 
