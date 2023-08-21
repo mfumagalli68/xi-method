@@ -1,8 +1,9 @@
 [tool.poetry]
 name = "xi"
 version = "0.1.0"
-description = ""
-authors = ["marco.fumagalli <marco.fumagalli@esprinet.com>"]
+description = "Post-hoc explanations for ML models through measures of statistical dependence"
+authors = ["marco.fumagalli <m.fumagalli68@gmail.com>",
+            "valentina.ghidini <vale.ghidini95@gmail.com"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
