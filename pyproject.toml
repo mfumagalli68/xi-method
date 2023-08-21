@@ -7,11 +7,15 @@ authors = ["marco.fumagalli <m.fumagalli68@gmail.com>",
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = ">=3.9,<3.13"
 numpy = "^1.23.2"
 pytest = "^7.0"
 line-profiler-pycharm = "^1.1.0"
 pandas = "^2.0.3"
+scipy = "^1.11.2"
+matplotlib = "^3.7.2"
+
+
 
 
 [build-system]
