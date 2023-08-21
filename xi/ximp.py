@@ -1,16 +1,12 @@
 import abc
-import time
+from operator import itemgetter
 
-import pandas as pd
-from scipy.special import rel_entr
 from scipy.stats import rv_histogram
 
-from xi.utils import *
 from xi.exceptions import *
-from xi.separation.measurement import *
-from operator import itemgetter
 from xi.plotting.plot import *
-import inspect
+from xi.separation.measurement import *
+from xi.utils import *
 
 
 # A class XI which will have method

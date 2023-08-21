@@ -1,6 +1,4 @@
-from typing import *
 import numpy as np
-import inspect
 from scipy.special import rel_entr
 
 def nrmd(x):  # maybe this can be rewritten as a lambda function
