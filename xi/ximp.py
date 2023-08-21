@@ -5,7 +5,7 @@ import pandas as pd
 from scipy.special import rel_entr
 from scipy.stats import rv_histogram
 
-from utils import *
+from xi.utils import *
 from xi.exceptions import *
 from xi.separation.measurement import *
 from operator import itemgetter
@@ -90,6 +90,7 @@ class XIClassifier(XI):
                 replicates: int = 1,
                 separation_measure: Union[AnyStr, List] = ['kuiper', 'hellinger']) -> Dict:
         """
+        Provide post-hoc explainations
 
         :param X: Design matrix, without target variable
         :param y: target variable
@@ -147,7 +148,7 @@ class XIClassifier(XI):
             ix = np.argsort(X + np.random.rand(*X.shape), axis=0)
 
             for idx in range(k):
-                print(idx)
+
                 col = mapping_col.get(idx)
                 partitions = self._compute_partitions(col=col, n=n)
 
@@ -155,7 +156,11 @@ class XIClassifier(XI):
                 # builder will create object.
                 # Second iteration it won't overwrite since it's already created.
                 for _sep_measure, builder_name in zip(separation_measure, builder_names):
-                    seps[_sep_measure] = factory.create(_sep_measure, row=partitions, col=k, replica=replicates)
+                    seps[_sep_measure] = factory.create(_sep_measure,
+                                                        row=partitions,
+                                                        col=k,
+                                                        replica=replicates,
+                                                        idx_to_col=mapping_col)
 
                 indx = np.round(np.linspace(start=0,
                                             stop=n,
@@ -272,35 +277,35 @@ class XIRegressor(XI):
         return seps
 
 
-if __name__ == '__main__':
-    # X = np.random.normal(3, 7, size=5 * 100000)  # df_np[:, 1:11]
-    # X = X.reshape((100000, 5))
-    # reading from the file
-    df = pd.read_csv("C:\\Users\\marco.fumagalli\\xi\\tests\\winequality-red.csv", sep=";")
-
-    Y = df.quality.values
-    df.drop(columns='quality', inplace=True)
-
-    # Y = np.array(np.random.randint(2, 4, size=100000))
-
-    start_time = time.perf_counter()
-
-
-    # df = pd.DataFrame(X, columns=[f"col_{i}" for i in range(X.shape[1])])
-
-    def compute_attempt(dmass, condmass, totalmass, **kwargs):
-        return np.sum(np.sqrt(np.multiply(condmass, totalmass)))
-
-
-    # cust = CustomSeparationMeasure(separation_measure={'test':compute_attempt})
-    # cust.register()
-
-    xi = XIClassifier(m=20)
-    P = xi.explain(X=df, y=Y, separation_measure='L1')
-    plot(df=df, type='tabular', explain=P.get('L1').value, k=10)
-    # P_measures = Ximp(X, Y, None, m=100, ties=False)
-    end_time = time.perf_counter()
-    print(end_time - start_time, "seconds")
-    # val = P_measures.get('L1').value
-    # print(val)
-    # print(X.columns)
+# if __name__ == '__main__':
+#     # X = np.random.normal(3, 7, size=5 * 100000)  # df_np[:, 1:11]
+#     # X = X.reshape((100000, 5))
+#     # reading from the file
+#     df = pd.read_csv("/tests/data/winequality-red.csv", sep=";")
+#
+#     Y = df.quality.values
+#     df.drop(columns='quality', inplace=True)
+#
+#     # Y = np.array(np.random.randint(2, 4, size=100000))
+#
+#     start_time = time.perf_counter()
+#
+#
+#     # df = pd.DataFrame(X, columns=[f"col_{i}" for i in range(X.shape[1])])
+#
+#     def compute_attempt(dmass, condmass, totalmass, **kwargs):
+#         return np.sum(np.sqrt(np.multiply(condmass, totalmass)))
+#
+#
+#     # cust = CustomSeparationMeasure(separation_measure={'test':compute_attempt})
+#     # cust.register()
+#
+#     xi = XIClassifier(m=20)
+#     P = xi.explain(X=df, y=Y, separation_measure='L1')
+#     plot(separation_measurement='L1', type='tabular', explain=P, k=10)
+#     # P_measures = Ximp(X, Y, None, m=100, ties=False)
+#     end_time = time.perf_counter()
+#     print(end_time - start_time, "seconds")
+#     val = P.get('L1').value
+#     print(val)
+#     print(df.columns)

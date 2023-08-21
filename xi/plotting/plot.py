@@ -3,22 +3,29 @@ import pandas as pd
 import numpy as np
 
 
-def plot(df, type, explain, k=10, **options):
+def plot(type, explain,separation_measurement, **options):
     if type == 'tabular':
-        _tabular_plot(df, explain, k=3)  # k most important variable
+        _tabular_plot(explain,separation_measurement,**options)  # k most important variable
     if type == 'image':
-        _image_plot(df)
+        _image_plot()
 
 
-def _tabular_plot(df, explain, k, **options):
+def _tabular_plot(explain, separation_measurement, **options):
     title = options.get('title', 'Explainations')
     figsize = options.get('figsize', (10, 10))
     color = options.get('color', 'blue')
+    k = options.get('k',6)
 
     fig = plt.figure(figsize=figsize)
 
-    data = {'variable': df.columns,
-            'value': explain}
+    try:
+        sep = explain.get(separation_measurement)
+    except KeyError as e:
+        raise KeyError(f"{separation_measurement} not previously computed.")
+
+    data = {'variable': sep.idx_to_col.values(),
+            'value': sep.value}
+
     df = pd.DataFrame(data=data, columns=['variable', 'value'])
     df = df.sort_values('value', ascending=True).reset_index(drop=True)
     if df.shape[0] > k:
