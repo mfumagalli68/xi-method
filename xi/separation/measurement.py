@@ -1,12 +1,14 @@
 import numpy as np
 from scipy.special import rel_entr
 
+
 def nrmd(x):  # maybe this can be rewritten as a lambda function
     if np.sum(x) == 0:
         total = 1
     else:
         total = np.sum(x)
     return np.divide(x, total)
+
 
 class SepMeasureFactory:
     def __init__(self):
@@ -24,7 +26,7 @@ class SepMeasureFactory:
 
 class SeparationMeasurement:
 
-    def __init__(self, row, col, replica,idx_to_col):
+    def __init__(self, row, col, replica, idx_to_col):
         self.matrix = np.zeros((row, col))
         self.matrix_replica = np.zeros((col, replica))
         self.value = 0
@@ -56,10 +58,10 @@ class SeparationMeasurement:
 
 class L1Service(SeparationMeasurement):
 
-    def __init__(self, row, col, replica,idx_to_col):
-        super(L1Service, self).__init__(row, col, replica,idx_to_col)
+    def __init__(self, row, col, replica, idx_to_col):
+        super(L1Service, self).__init__(row, col, replica, idx_to_col)
 
-    def _compute(self, dmass,**kwargs):
+    def _compute(self, dmass, **kwargs):
         return np.sum(np.abs(dmass))
 
 
@@ -67,18 +69,18 @@ class L1Builder:
     def __init__(self):
         self._instance = None
 
-    def __call__(self, row, col, replica,idx_to_col):
+    def __call__(self, row, col, replica, idx_to_col):
         if not self._instance:
-            self._instance = L1Service(row=row, col=col, replica=replica,idx_to_col=idx_to_col)
+            self._instance = L1Service(row=row, col=col, replica=replica, idx_to_col=idx_to_col)
         return self._instance
 
 
 class L2Service(SeparationMeasurement):
 
-    def __init__(self, row, col, replica,idx_to_col):
+    def __init__(self, row, col, replica, idx_to_col):
         super(L2Service, self).__init__(row, col, replica, idx_to_col)
 
-    def _compute(self, dmass,**kwargs):
+    def _compute(self, dmass, **kwargs):
         return np.sum(np.square(dmass))
 
 
@@ -86,16 +88,16 @@ class L2Builder:
     def __init__(self):
         self._instance = None
 
-    def __call__(self, row, col, replica,idx_to_col):
+    def __call__(self, row, col, replica, idx_to_col):
         if not self._instance:
-            self._instance = L2Service(row=row, col=col, replica=replica,idx_to_col=idx_to_col)
+            self._instance = L2Service(row=row, col=col, replica=replica, idx_to_col=idx_to_col)
         return self._instance
 
 
 class KLService(SeparationMeasurement):
 
-    def __init__(self, row, col, replica,idx_to_col):
-        super(KLService, self).__init__(row, col, replica,idx_to_col)
+    def __init__(self, row, col, replica, idx_to_col):
+        super(KLService, self).__init__(row, col, replica, idx_to_col)
 
     def _compute(self, dmass, **kwargs):
         condmass = kwargs.get('condmass')
@@ -113,9 +115,9 @@ class KLBuilder:
     def __init__(self):
         self._instance = None
 
-    def __call__(self, row, col, replica,idx_to_col):
+    def __call__(self, row, col, replica, idx_to_col):
         if not self._instance:
-            self._instance = KLService(row=row, col=col, replica=replica,idx_to_col=idx_to_col)
+            self._instance = KLService(row=row, col=col, replica=replica, idx_to_col=idx_to_col)
         return self._instance
 
 
@@ -123,16 +125,16 @@ class KuiperBuilder:
     def __init__(self):
         self._instance = None
 
-    def __call__(self, row, col, replica,idx_to_col):
+    def __call__(self, row, col, replica, idx_to_col):
         if not self._instance:
-            self._instance = KuiperService(row=row, col=col, replica=replica,idx_to_col=idx_to_col)
+            self._instance = KuiperService(row=row, col=col, replica=replica, idx_to_col=idx_to_col)
         return self._instance
 
 
 class KuiperService(SeparationMeasurement):
 
-    def __init__(self, row, col, replica,idx_to_col):
-        super(KuiperService, self).__init__(row, col, replica,idx_to_col)
+    def __init__(self, row, col, replica, idx_to_col):
+        super(KuiperService, self).__init__(row, col, replica, idx_to_col)
 
     def _compute(self, dmass, **ignored):
         return np.max(np.abs(dmass))
@@ -142,16 +144,16 @@ class HellingerBuilder:
     def __init__(self):
         self._instance = None
 
-    def __call__(self, row, col, replica,idx_to_col):
+    def __call__(self, row, col, replica, idx_to_col):
         if not self._instance:
-            self._instance = HellingerService(row=row, col=col, replica=replica,idx_to_col=idx_to_col)
+            self._instance = HellingerService(row=row, col=col, replica=replica, idx_to_col=idx_to_col)
         return self._instance
 
 
 class HellingerService(SeparationMeasurement):
 
-    def __init__(self, row, col, replica,idx_to_col):
-        super(HellingerService, self).__init__(row, col, replica,idx_to_col)
+    def __init__(self, row, col, replica, idx_to_col):
+        super(HellingerService, self).__init__(row, col, replica, idx_to_col)
 
     def _compute(self, condmass, totalmass, **ignored):
         return 1 - np.sum(np.sqrt(np.multiply(condmass, totalmass)))

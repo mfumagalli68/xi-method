@@ -2,19 +2,19 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 
-
-def plot(type, explain,separation_measurement, **options):
+def plot(type, explain, separation_measurement, **options):
     if type == 'tabular':
-        _tabular_plot(explain,separation_measurement,**options)  # k most important variable
+        _tabular_plot(explain, separation_measurement, **options)  # k most important variable
     if type == 'image':
         _image_plot()
 
 
 def _tabular_plot(explain, separation_measurement, **options):
-    title = options.get('title', 'Explainations')
+
+    title = options.get('title', 'Post hoc explainations')
     figsize = options.get('figsize', (10, 10))
     color = options.get('color', 'blue')
-    k = options.get('k',6)
+    k = options.get('k', 3)
 
     fig = plt.figure(figsize=figsize)
 
@@ -38,7 +38,7 @@ def _tabular_plot(explain, separation_measurement, **options):
     plt.show()
 
 
-def _image_plot(df):  # df array
+def _image_plot(X: np.ndarray):
 
-    plt.imshow(df, cmap='hot', interpolation='nearest')
+    plt.imshow(X, cmap='hot', interpolation='nearest')
     plt.show()
