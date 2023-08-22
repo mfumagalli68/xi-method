@@ -4,7 +4,8 @@ from typing import *
 import numpy as np
 from xi.separation.measurement import builder_mapping
 
-def partition_validation(arg: Union[int,Dict,float], k: int) -> None:
+
+def partition_validation(arg: Union[int, Dict, float], k: int) -> None:
     """
     Validate partition specified by the user
 
@@ -26,7 +27,7 @@ def partition_validation(arg: Union[int,Dict,float], k: int) -> None:
                           "is greater than number of features")
 
 
-def separation_measurement_validation(measure: Union[List, AnyStr]) -> None:
+def separation_measurement_validation(measure: Union[List, AnyStr]) -> Union[XiError,int]:
     """
     Validate separation measurement, if not implemented throw an error
 
@@ -38,17 +39,18 @@ def separation_measurement_validation(measure: Union[List, AnyStr]) -> None:
     for m in measure:
         if m not in builder_mapping.keys():
             raise XiError(f"Separation measurement {m} not implemented. Please choose "
-                          f"one or more than one from {list(builder_mapping.keys().pop('Custom'))}")
+                          f"one or more than one from {list(builder_mapping.keys())}")
+
+    return 1
 
 
 def check_args_overlap(*args):
-
     """
 
     :param args:
     :return:
     """
-    if any(isinstance(i,int) for i in args):
+    if any(isinstance(i, int) for i in args):
         return 0
     overlap = []
     sets = tuple(set(d) for d in args)
@@ -63,6 +65,3 @@ def check_args_overlap(*args):
                       f"Please specify parameters differently.")
     else:
         return 1
-
-
-

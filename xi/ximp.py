@@ -202,8 +202,8 @@ class XIRegressor(XI):
     def explain(self,
                 X: pd.DataFrame,
                 y: np.array,
-                replicates: int = 1,
-                separation_measure: Union[AnyStr, List] = ['kuiper', 'hellinger']) -> Dict:
+                replicates: int,
+                separation_measure: Union[AnyStr, List]) -> Dict:
 
         if isinstance(separation_measure, str):
             separation_measure = [separation_measure]
@@ -225,6 +225,8 @@ class XIRegressor(XI):
 
         if self.ties:
             replicates = 50
+        else:
+            replicates = 1
 
         # Input from user, one or multiple sep measure?
         factory = SepMeasureFactory()
@@ -315,4 +317,3 @@ if __name__ == '__main__':
          k=10,
          shape=(8, 8))
     print(val)
-
