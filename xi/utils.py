@@ -1,4 +1,6 @@
 import itertools
+import logging
+
 from xi.exceptions import XiError
 from typing import *
 import numpy as np
@@ -43,6 +45,17 @@ def separation_measurement_validation(measure: Union[List, AnyStr]) -> Union[XiE
 
     return 1
 
+def get_separation_measurement() -> AnyStr:
+    """
+    Validate separation measurement, if not implemented throw an error
+
+    :param measure:
+    :return:
+    """
+
+    seps = '\n'.join(list(builder_mapping.keys()))
+    logging.info(f"These are the separation measurement implemented in this package: " \
+           f"{seps}")
 
 def check_args_overlap(*args):
     """
@@ -65,3 +78,4 @@ def check_args_overlap(*args):
                       f"Please specify parameters differently.")
     else:
         return 1
+

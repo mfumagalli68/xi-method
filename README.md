@@ -1,5 +1,5 @@
-![python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
 ![build](https://github.com/mfumagalli68/xi/actions/workflows/python-package.yml/badge.svg)
+
 # XI
 
 XI is a python package that implements the paper "Probabilistic Sensitivity Measures and
@@ -20,8 +20,15 @@ pip install xi
 The package is quite simple and it's designed to give you
 post hoc explainations for your dataset and machine learning model
 with minimal effort.
-Import your data in a pandas dataframe format and your predictions
-in a numpy array format.<br>
+Import your data in a pandas dataframe format, splitting covariates
+and independent variable.<br>
+
+```[python]
+df = pd.read_csv("/tests/data/winequality-red.csv", sep=";")
+Y = df.quality
+df.drop(columns='quality', inplace=True)
+```
+
 Create an instance of `XIClassifier` or `XIRegressor` depending on the type of 
 problem you are working with.<br>
 
@@ -38,13 +45,13 @@ to all covariates.
 
 A default *m* value will be computed if nothing is provided by the user, as indicated in the paper.<br>
 
-To obtain post hoc explainations simpy run:
+To obtain post hoc explanations simply run:
 
 ```[python]
 p = xi.explain(X=df, y=Y, separation_measurement='L1')
 ```
 Object `p` will contain explanation value and an index to covariate name mapping, 
-helpful to associate explaination with the corresponding covariate.<br>
+helpful to associate explanation with the corresponding covariate.<br>
 
 You can choose from different separation measurement, as specified in the paper.
 You can specify one separation measurement or more than one, using a list.
@@ -56,6 +63,11 @@ p = xi.explain(X=df, y=Y, separation_measurement=['L1','Kuiper'])
 Implemented separation measurement can be viewed running:
 
 ```[python]
-TBD
+get_separation_measurement()
 ```
 
+Plot you result:
+
+```[python]
+plot(separation_measurement='L1', type='tabular', explain=P, k=10)
+```

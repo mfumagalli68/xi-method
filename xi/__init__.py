@@ -1,3 +1,5 @@
+import logging
+
 def enum(enum_type='enum', base_classes=None, methods=None, **attrs):
     """
     Generates a enumeration with the given attributes.
@@ -23,3 +25,4 @@ def enum(enum_type='enum', base_classes=None, methods=None, **attrs):
     return type(str(enum_type), base_classes, methods)
 
 
+logging.getLogger().setLevel(logging.INFO)
