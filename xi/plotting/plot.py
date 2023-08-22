@@ -1,16 +1,19 @@
+import sys
+
 import matplotlib.pyplot as plt
 import pandas as pd
-import numpy as np
+from typing import *
+from xi.separation.measurement import SeparationMeasurement
+from xi.exceptions import XiError
 
-def plot(type, explain, separation_measurement, **options):
+def plot(type: AnyStr, explain: Dict, separation_measurement: AnyStr, **options):
     if type == 'tabular':
         _tabular_plot(explain, separation_measurement, **options)  # k most important variable
     if type == 'image':
-        _image_plot()
+        _image_plot(explain, separation_measurement, **options)
 
 
-def _tabular_plot(explain, separation_measurement, **options):
-
+def _tabular_plot(explain: Dict, separation_measurement: AnyStr, **options):
     title = options.get('title', 'Post hoc explainations')
     figsize = options.get('figsize', (10, 10))
     color = options.get('color', 'blue')
@@ -38,7 +41,15 @@ def _tabular_plot(explain, separation_measurement, **options):
     plt.show()
 
 
-def _image_plot(X: np.ndarray):
+def _image_plot(explain: Dict,
+                separation_measurement: AnyStr,
+                shape: tuple,
+                **options):
 
-    plt.imshow(X, cmap='hot', interpolation='nearest')
+    sep = explain.get(separation_measurement).value
+    try:
+        sep = sep.reshape(shape)
+    except ValueError as e:
+        raise XiError(e)
+    plt.imshow(sep, cmap='hot', interpolation='nearest')
     plt.show()
