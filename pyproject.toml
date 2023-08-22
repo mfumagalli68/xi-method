@@ -4,9 +4,12 @@ version = "0.1.0"
 description = "Post hoc explanations for ML models through measures of statistical dependence"
 authors = ["marco.fumagalli <m.fumagalli68@gmail.com>",
             "valentina.ghidini <vale.ghidini95@gmail.com"]
+maintainers =  ["marco.fumagalli <m.fumagalli68@gmail.com>",
+            "valentina.ghidini <vale.ghidini95@gmail.com"]
 readme = "README.md"
 include = ["tests/data/winequality-red.csv"]
-
+license = "MIT"
+keywords = ["XaI", "explainable","AI"]
 
 [tool.poetry.dependencies]
 python = ">=3.9,<3.13"
