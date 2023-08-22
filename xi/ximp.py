@@ -7,7 +7,6 @@ from xi.exceptions import *
 from xi.plotting.plot import *
 from xi.separation.measurement import *
 from xi.utils import *
-from sklearn.datasets import load_digits
 
 
 # A class XI which will have method
@@ -279,41 +278,41 @@ class XIRegressor(XI):
         return seps
 
 
-if __name__ == '__main__':
-    # X = np.random.normal(3, 7, size=5 * 100000)  # df_np[:, 1:11]
-    # X = X.reshape((100000, 5))
-    # reading from the file
-    # df = pd.read_csv("/tests/data/winequality-red.csv", sep=";")
-    df = load_digits()
-    Y = df.target
-    df = df.data
-
-
-    # df.drop(columns='quality', inplace=True)
-
-    # Y = np.array(np.random.randint(2, 4, size=100000))
-
-    # start_time = time.perf_counter()
-
-    # df = pd.DataFrame(X, columns=[f"col_{i}" for i in range(X.shape[1])])
-
-    def compute_attempt(dmass, condmass, totalmass, **kwargs):
-        return np.sum(np.sqrt(np.multiply(condmass, totalmass)))
-
-
-    # cust = CustomSeparationMeasure(separation_measure={'test':compute_attempt})
-    # cust.register()
-
-    xi = XIClassifier(m=20)
-    P = xi.explain(X=df, y=Y, separation_measure='L1')
-    # plot(separation_measurement='L1', type='tabular', explain=P, k=10)
-    # P_measures = Ximp(X, Y, None, m=100, ties=False)
-    # end_time = time.perf_counter()
-    # print(end_time - start_time, "seconds")
-    val = P.get('L1').value
-    plot(separation_measurement='L1',
-         type='image',
-         explain=P,
-         k=10,
-         shape=(8, 8))
-    print(val)
+# if __name__ == '__main__':
+#     # X = np.random.normal(3, 7, size=5 * 100000)  # df_np[:, 1:11]
+#     # X = X.reshape((100000, 5))
+#     # reading from the file
+#     # df = pd.read_csv("/tests/data/winequality-red.csv", sep=";")
+#     df = load_digits()
+#     Y = df.target
+#     df = df.data
+#
+#
+#     # df.drop(columns='quality', inplace=True)
+#
+#     # Y = np.array(np.random.randint(2, 4, size=100000))
+#
+#     # start_time = time.perf_counter()
+#
+#     # df = pd.DataFrame(X, columns=[f"col_{i}" for i in range(X.shape[1])])
+#
+#     def compute_attempt(dmass, condmass, totalmass, **kwargs):
+#         return np.sum(np.sqrt(np.multiply(condmass, totalmass)))
+#
+#
+#     # cust = CustomSeparationMeasure(separation_measure={'test':compute_attempt})
+#     # cust.register()
+#
+#     xi = XIClassifier(m=20)
+#     P = xi.explain(X=df, y=Y, separation_measure='L1')
+#     # plot(separation_measurement='L1', type='tabular', explain=P, k=10)
+#     # P_measures = Ximp(X, Y, None, m=100, ties=False)
+#     # end_time = time.perf_counter()
+#     # print(end_time - start_time, "seconds")
+#     val = P.get('L1').value
+#     plot(separation_measurement='L1',
+#          type='image',
+#          explain=P,
+#          k=10,
+#          shape=(8, 8))
+#     print(val)
