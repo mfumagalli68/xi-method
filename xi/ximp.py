@@ -80,26 +80,23 @@ class XIClassifier(XI):
 
         return partition
 
-    def explain(self,
-                X: pd.DataFrame,
-                y: np.array,
-                replicates: int = 1,
-                separation_measure: Union[AnyStr, List] = ['kuiper', 'hellinger']) -> Dict:
+    def explain(self, X: pd.DataFrame, y: np.array, replicates: int = 1,
+                separation_measurement: Union[AnyStr, List] = ['kuiper', 'hellinger']) -> Dict:
         """
         Provide post-hoc explainations
 
         :param X: Design matrix, without target variable
         :param y: target variable
         :param replicates: number of replications
-        :param separation_measure: Separation measurement.
+        :param separation_measurement: Separation measurement.
         Read documentation for the implemented ones.
         You can specify one or more than one as list.
 
         :return: dictionary mapping separation measurement name to object containing explanations
         for each covariates
         """
-        if isinstance(separation_measure, str):
-            separation_measure = [separation_measure]
+        if isinstance(separation_measurement, str):
+            separation_measurement = [separation_measurement]
 
         if isinstance(X, pd.DataFrame):
             mapping_col = {k: v for k, v in zip(range(X.shape[1]), X.columns)}
@@ -113,7 +110,7 @@ class XIClassifier(XI):
         partition_validation(self.obs, k)
         partition_validation(self.discrete, k)
 
-        separation_measurement_validation(measure=separation_measure)
+        separation_measurement_validation(measure=separation_measurement)
 
         check_args_overlap(self.m,
                            self.obs,
@@ -132,14 +129,14 @@ class XIClassifier(XI):
         # Input from user, one or multiple sep measure?
         factory = SepMeasureFactory()
 
-        builder_names = itemgetter(*separation_measure)(builder_mapping)
+        builder_names = itemgetter(*separation_measurement)(builder_mapping)
         if isinstance(builder_names, type):
             builder_names = [builder_names]
 
         seps = {}
 
         # register builder
-        for _sep_measure, builder_name in zip(separation_measure, builder_names):
+        for _sep_measure, builder_name in zip(separation_measurement, builder_names):
             factory.register_builder(_sep_measure, builder_name())
 
         for replica in range(replicates):
@@ -154,7 +151,7 @@ class XIClassifier(XI):
                 # builder registered. First iteration
                 # builder will create object.
                 # Second iteration it won't overwrite since it's already created.
-                for _sep_measure, builder_name in zip(separation_measure, builder_names):
+                for _sep_measure, builder_name in zip(separation_measurement, builder_names):
                     seps[_sep_measure] = factory.create(_sep_measure,
                                                         row=partitions,
                                                         col=k,
@@ -202,10 +199,10 @@ class XIRegressor(XI):
                 X: pd.DataFrame,
                 y: np.array,
                 replicates: int,
-                separation_measure: Union[AnyStr, List]) -> Dict:
+                separation_measurement: Union[AnyStr, List]) -> Dict:
 
-        if isinstance(separation_measure, str):
-            separation_measure = [separation_measure]
+        if isinstance(separation_measurement, str):
+            separation_measurement = [separation_measurement]
 
         mapping_col = {k: v for k, v in zip(range(X.shape[1]), X.columns)}
 
@@ -214,7 +211,7 @@ class XIRegressor(XI):
 
         partition_validation(self.m, k)
 
-        separation_measurement_validation(measure=separation_measure)
+        separation_measurement_validation(measure=separation_measurement)
 
         histogram_dist = rv_histogram(np.histogram(y, bins='auto'))
         y_grid = np.linspace(np.min(y), np.max(y), self.grid)
@@ -230,14 +227,14 @@ class XIRegressor(XI):
         # Input from user, one or multiple sep measure?
         factory = SepMeasureFactory()
 
-        builder_names = itemgetter(*separation_measure)(builder_mapping)
+        builder_names = itemgetter(*separation_measurement)(builder_mapping)
         if isinstance(builder_names, type):
             builder_names = [builder_names]
 
         seps = {}
 
         # register builder
-        for _sep_measure, builder_name in zip(separation_measure, builder_names):
+        for _sep_measure, builder_name in zip(separation_measurement, builder_names):
             factory.register_builder(_sep_measure, builder_name())
 
         for replica in range(replicates):
@@ -251,7 +248,7 @@ class XIRegressor(XI):
                 # builder registered. First iteration
                 # builder will create object.
                 # Second iteration it won't overwrite since it's already created.
-                for _sep_measure, builder_name in zip(separation_measure, builder_names):
+                for _sep_measure, builder_name in zip(separation_measurement, builder_names):
                     seps[_sep_measure] = factory.create(_sep_measure, row=self.m, col=k, replica=replicates)
 
                 indx = np.round(np.linspace(start=0,

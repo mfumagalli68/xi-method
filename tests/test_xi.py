@@ -10,7 +10,7 @@ def test_separation_measurement():
     df.drop(columns='quality', inplace=True)
 
     xi = XIClassifier(m=20)
-    p = xi.explain(X=df, y=Y, separation_measure='L1', replicates=50)
+    p = xi.explain(X=df, y=Y, replicates=50, separation_measurement='L1')
 
     exp = np.array(
         [0.2109063, 0.19921303, 0.1841079, 0.15099798, 0.12599739, 0.20654458, 0.28604079, 0.16488397, 0.16463576,

@@ -27,8 +27,8 @@ class SepMeasureFactory:
 class SeparationMeasurement:
 
     def __init__(self, row, col, replica, idx_to_col):
-        self.matrix = np.zeros((row, col))
-        self.matrix_replica = np.zeros((col, replica))
+        self._matrix = np.zeros((row, col))
+        self._matrix_replica = np.zeros((col, replica))
         self.value = 0
         self.idx_to_col = idx_to_col
 
@@ -36,9 +36,9 @@ class SeparationMeasurement:
 
         type = kwargs.get('type')
         if type == 'regressor':
-            self.matrix[i, j] = self._regressor(**kwargs)
+            self._matrix[i, j] = self._regressor(**kwargs)
         else:
-            self.matrix[i, j] = self._compute(**kwargs)
+            self._matrix[i, j] = self._compute(**kwargs)
 
     def _regressor(self, **kwargs):
         pass
@@ -47,13 +47,13 @@ class SeparationMeasurement:
         pass
 
     def avg_replica(self, replica):
-        self.matrix_replica[:, replica] = np.mean(self.matrix, axis=0)
+        self._matrix_replica[:, replica] = np.mean(self._matrix, axis=0)
 
     def avg(self):
-        self.value = np.mean(self.matrix_replica, axis=1)
+        self.value = np.mean(self._matrix_replica, axis=1)
 
     def reset(self, row, col):
-        self.matrix = np.zeros((row, col))
+        self._matrix = np.zeros((row, col))
 
 
 class L1Service(SeparationMeasurement):
