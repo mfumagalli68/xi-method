@@ -27,7 +27,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        python -m pip install flake8 pytest poetry codecov
+        python -m pip install flake8 pytest poetry codecov pytest-cov
         poetry install
     - name: Lint with flake8
       run: |
