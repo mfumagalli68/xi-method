@@ -1,4 +1,4 @@
-![build](https://github.com/mfumagalli68/xi/actions/workflows/python-package.yml/badge.svg)
+![build](https://github.com/mfumagalli68/xi/actions/workflows/build.yml/badge.svg)
 ![coverage](https://codecov.io/gh/mfumagalli68/xi/branch/main/graph/badge.svg)
 
 
