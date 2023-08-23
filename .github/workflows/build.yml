@@ -37,8 +37,7 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest and coverage
       run: |
-        poetry run pytest
-        pytest --cov=./ --cov-report=xml
+        poetry run pytest --cov=./ --cov-report=xml
     - name: Submit coverage report
       run: |
           codecov --token=${{ secrets.CODECOV_TOKEN }}
