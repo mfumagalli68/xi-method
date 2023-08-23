@@ -42,7 +42,7 @@ jobs:
     - name: Generate coverage report
       run: |
         pip install pytest-cov
-        poetry run pytest --cov=./ --cov-report=xml
+        pytest --cov=./ --cov-report=xml
     - name: Submit coverage report
       run: |
           codecov --token=${{ secrets.CODECOV_TOKEN }}
