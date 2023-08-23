@@ -29,6 +29,12 @@ Briefly, the method consists in evaluating ML model predictions comparing the va
 measures obtained in a model-agnostic fashion, i.e., directly from the data, with the same indices computed replacing
 the true targets with the ML model forecasts.<br>
 
+To sum up, **Xi** has three main advantages:
+
+- Model agnostic: as long as your model outputs predictions, you can use **Xi** with any model
+- Data agnostic: **Xi** works with structured (tabular) and unstructured data ( text, image ).
+- Computationally cheap
+
 # Installation
 
 Install from pypy:
