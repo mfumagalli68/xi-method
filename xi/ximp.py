@@ -146,7 +146,7 @@ class XIClassifier(XI):
             for idx in range(k):
 
                 col = mapping_col.get(idx)
-                print(col)
+
                 partitions = self._compute_partitions(col=col, n=n)
 
                 # builder registered. First iteration
