@@ -1,5 +1,5 @@
 ![build](https://github.com/mfumagalli68/xi/actions/workflows/python-package.yml/badge.svg)
-![last-commit](https://img.shields.io/github/last-commit/mfumagalli68/xi.svg)
+![coverage](https://codecov.io/gh/mfumagalli68/xi/branch/master/graph/badge.svg)
 
 
 <p align="center">
