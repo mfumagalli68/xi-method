@@ -38,6 +38,9 @@ jobs:
     - name: Test with pytest
       run: |
         poetry run pytest
+    - name: Submit coverage report
+        run: |
+          codecov --token=${{ secrets.CODECOV_TOKEN }}
 
   build_windows:
 
@@ -67,6 +70,4 @@ jobs:
       - name: Test with pytest
         run: |
           poetry run pytest
-      - name: Submit coverage report
-        run: |
-          codecov --token=${{ secrets.CODECOV_TOKEN }}
+
