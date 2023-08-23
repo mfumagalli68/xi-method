@@ -9,7 +9,7 @@
 <p align="center">
     <img src="logo.PNG">
 </p>
-# Xi
+
 
 **Xi** is a python package that implements the paper "Probabilistic Sensitivity Measures and Classification Tasks".<br>
 

@@ -39,7 +39,7 @@ jobs:
       run: |
         poetry run pytest
     - name: Submit coverage report
-        run: |
+      run: |
           codecov --token=${{ secrets.CODECOV_TOKEN }}
 
   build_windows:
