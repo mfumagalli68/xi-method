@@ -1,15 +1,12 @@
 import os.path
 from xi.ximp import *
 import numpy as np
-from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import train_test_split
 
-path = 'data/winequality-red.csv'
+path = 'tests/data/winequality-red.csv'
 
 
 def test_separation_measurement_m_int():
 
-    lr = LogisticRegression(max_iter=4)
 
     np.random.seed(3)
     df = pd.read_csv(os.path.abspath(path), sep=";")
@@ -17,12 +14,8 @@ def test_separation_measurement_m_int():
     df.drop(columns='quality', inplace=True)
 
 
-    x_train, x_test, y_train, y_test = train_test_split(df.values, Y, test_size=0.3, random_state=42)
-    lr.fit(x_train, y_train)
-    y_pred = lr.predict(x_test)
-
     xi = XIClassifier(m=20)
-    p = xi.explain(X=x_test, y=y_pred, replicates=50, separation_measurement='L1')
+    p = xi.explain(X=df, y=Y, replicates=50, separation_measurement='L1')
 
     exp = np.array(
         [0.2109063, 0.19921303, 0.1841079, 0.15099798, 0.12599739, 0.20654458, 0.28604079, 0.16488397, 0.16463576,
