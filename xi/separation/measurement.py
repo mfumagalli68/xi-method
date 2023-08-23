@@ -29,7 +29,7 @@ class SeparationMeasurement:
     def __init__(self, row, col, replica, idx_to_col):
         self._matrix = np.zeros((row, col))
         self._matrix_replica = np.zeros((col, replica))
-        self.value = 0
+        self.explanation = 0
         self.idx_to_col = idx_to_col
 
     def compute(self, i, j, **kwargs):
@@ -50,7 +50,7 @@ class SeparationMeasurement:
         self._matrix_replica[:, replica] = np.mean(self._matrix, axis=0)
 
     def avg(self):
-        self.value = np.mean(self._matrix_replica, axis=1)
+        self.explanation = np.mean(self._matrix_replica, axis=1)
 
     def reset(self, row, col):
         self._matrix = np.zeros((row, col))
@@ -147,6 +147,9 @@ class KuiperService(SeparationMeasurement):
 
     def _compute(self, dmass, **ignored):
         return np.max(np.abs(dmass))
+
+    def _regressor(self,dmass,condmass,totalmass,**ignored):
+        pass
 
 
 class HellingerBuilder:

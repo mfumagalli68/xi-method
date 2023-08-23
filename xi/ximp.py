@@ -9,14 +9,6 @@ from xi.separation.measurement import *
 from xi.utils import *
 
 
-# A class XI which will have method
-# - explain_instances (?) ( better just explain maybe)
-# - produce_plot
-# --> produce plot should accept a parameter that will say
-# what type of data we have.
-# Then we need a class Mapper to map the type to the function
-# responsible for the plot. Inside produce_plot we will call Mapper
-# and then mapper will delegate the plot to the appropriate function.
 
 class XI(object):
 
@@ -81,9 +73,9 @@ class XIClassifier(XI):
         return partition
 
     def explain(self, X: pd.DataFrame, y: np.array, replicates: int = 1,
-                separation_measurement: Union[AnyStr, List] = ['kuiper', 'hellinger']) -> Dict:
+                separation_measurement: Union[AnyStr, List] = 'L1') -> Dict:
         """
-        Provide post-hoc explainations
+        Provide post-hoc explanations
 
         :param X: Design matrix, without target variable
         :param y: target variable
@@ -95,6 +87,7 @@ class XIClassifier(XI):
         :return: dictionary mapping separation measurement name to object containing explanations
         for each covariates
         """
+
         if isinstance(separation_measurement, str):
             separation_measurement = [separation_measurement]
 
@@ -185,7 +178,7 @@ class XIClassifier(XI):
         for _, _sep in seps.items():
             _sep.avg()
 
-        return seps  # {"l1": D, "l2": Q, "Kuiper": M, "linf": B, "KullbackLeibler": K, "Hellinger": H}
+        return seps
 
 
 class XIRegressor(XI):

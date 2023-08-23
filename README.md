@@ -17,7 +17,7 @@ The growing size and complexity of data as well as the need of accurate predicti
 model. While the success of those models extends statistical application, it also increases the need for
 interpretability and ,when possible, explainability.
 
-The paper propose an approach to the problem based on measures of statistical association.<br>
+The paper proposes an approach to the problem based on measures of statistical association.<br>
 Measures of statistical association deliver information regarding the strength of the statistical dependence between the
 target and the feature(s) of interest, inferring this insight from the data in a **model-agnostic** fashion.<br>
 In this respect, we note that an important class of measures of statistical associations is represented by probabilistic
@@ -56,7 +56,7 @@ Y = df.quality
 df.drop(columns='quality', inplace=True)
 ```
 
-Create an instance of `XIClassifier` or `XIRegressor` depending on the type of problem you are working with.<br>
+Create an instance of `XIClassifier` or `XIRegressor` depending on the type of problem you are working with:<br>
 
 ```[python]
 xi = XIClassifier(m=20)
@@ -72,20 +72,34 @@ For the classification tasks, you can specify the number of partitions in three 
 
 A default `m` value will be computed if nothing is provided by the user, as indicated in the paper.<br>
 
-To obtain post hoc explanations simply run:
+To obtain post hoc explanations, run your favorite ML model, save the predictions as numpy array
+and provide the covariates ( test set) and the predictions to the method `explain`:
 
 ```[python]
-p = xi.explain(X=df, y=Y, separation_measurement='L1')
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import train_test_split
+
+x_train, x_test, y_train, y_test = train_test_split(df.values, Y, test_size=0.3, random_state=42)
+lr = LogisticRegression(max_iter=100)
+lr.fit(x_train, y_train)
+y_pred = lr.predict(x_test)
+
+xi = XIClassifier(m=20)
+p = xi.explain(X=x_test, y=y_pred, replicates=10, separation_measurement='L1')
 ```
 
-Object `p` will contain explanation value and an index to covariate name mapping, helpful to associate explanation with
-the corresponding covariate.<br>
+Object `p` is a python dictionary mapping separation measurement and explanation.<br>
+You can easily have access to the explanation:
+
+```[python]
+p.get('L1').explanation
+```
 
 You can choose from different separation measurement, as specified in the paper. You can specify one separation
 measurement or more than one, using a list.
 
 ```[python]
-p = xi.explain(X=df, y=Y, separation_measurement=['L1','Kuiper'])
+p = xi.explain(X=x_test, y=y_pred, separation_measurement=['L1','Kuiper'])
 ```
 
 Implemented separation measurement can be viewed running:
@@ -94,7 +108,7 @@ Implemented separation measurement can be viewed running:
 get_separation_measurement()
 ```
 
-Plot you result:
+Plot your result:
 
 ```[python]
 plot(separation_measurement='L1', type='tabular', explain=P, k=10)
