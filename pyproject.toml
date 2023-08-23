@@ -26,6 +26,7 @@ line-profiler-pycharm = "^1.1.0"
 pandas = "^2.0.3"
 scipy = "^1.11.2"
 matplotlib = "^3.7.2"
+codecov = "^2.1.13"
 
 
 
