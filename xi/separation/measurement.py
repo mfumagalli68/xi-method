@@ -72,6 +72,9 @@ class L1Builder:
     def __call__(self, row, col, replica, idx_to_col):
         if not self._instance:
             self._instance = L1Service(row=row, col=col, replica=replica, idx_to_col=idx_to_col)
+        else:
+            self._instance.reset(row=row, col=col)
+
         return self._instance
 
 
@@ -91,6 +94,8 @@ class L2Builder:
     def __call__(self, row, col, replica, idx_to_col):
         if not self._instance:
             self._instance = L2Service(row=row, col=col, replica=replica, idx_to_col=idx_to_col)
+        else:
+            self._instance.reset(row=row, col=col)
         return self._instance
 
 
@@ -118,6 +123,8 @@ class KLBuilder:
     def __call__(self, row, col, replica, idx_to_col):
         if not self._instance:
             self._instance = KLService(row=row, col=col, replica=replica, idx_to_col=idx_to_col)
+        else:
+            self._instance.reset(row=row, col=col)
         return self._instance
 
 
@@ -128,6 +135,8 @@ class KuiperBuilder:
     def __call__(self, row, col, replica, idx_to_col):
         if not self._instance:
             self._instance = KuiperService(row=row, col=col, replica=replica, idx_to_col=idx_to_col)
+        else:
+            self._instance.reset(row=row, col=col)
         return self._instance
 
 
@@ -147,6 +156,8 @@ class HellingerBuilder:
     def __call__(self, row, col, replica, idx_to_col):
         if not self._instance:
             self._instance = HellingerService(row=row, col=col, replica=replica, idx_to_col=idx_to_col)
+        else:
+            self._instance.reset(row=row, col=col)
         return self._instance
 
 

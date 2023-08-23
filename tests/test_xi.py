@@ -3,7 +3,7 @@ from xi.ximp import *
 import numpy as np
 
 
-def test_separation_measurement():
+def test_separation_measurement_m_int():
     np.random.seed(3)
     df = pd.read_csv(os.path.abspath('tests/data/winequality-red.csv'), sep=";")
     Y = df.quality.values
@@ -19,3 +19,27 @@ def test_separation_measurement():
                                exp,
                                rtol=0.05,
                                atol=0.05)
+
+
+def test_separation_measurement_obs():
+    np.random.seed(3)
+    df = pd.read_csv(os.path.abspath('tests/data/winequality-red.csv'), sep=";")
+    Y = df.quality.values
+    df.drop(columns='quality', inplace=True)
+
+    xi = XIClassifier(obs={'fixed acidity': 100})
+    p = xi.explain(X=df, y=Y, replicates=1, separation_measurement='L1')
+
+    assert isinstance(p.get('L1').value, np.ndarray)
+
+
+def test_separation_measurement_m_dict():
+    np.random.seed(3)
+    df = pd.read_csv(os.path.abspath('tests/data/winequality-red.csv'), sep=";")
+    Y = df.quality.values
+    df.drop(columns='quality', inplace=True)
+
+    xi = XIClassifier(m={'fixed acidity': 100})
+    p = xi.explain(X=df, y=Y, replicates=1, separation_measurement='L1')
+
+    assert isinstance(p.get('L1').value, np.ndarray)

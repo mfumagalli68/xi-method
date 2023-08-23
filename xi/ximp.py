@@ -75,7 +75,7 @@ class XIClassifier(XI):
             partition = n
 
         if col in self.obs.keys():
-            desired_obs = self.m.get(col)
+            desired_obs = self.obs.get(col)
             partition = np.ceil(n / desired_obs).astype('int')
 
         return partition
@@ -146,6 +146,7 @@ class XIClassifier(XI):
             for idx in range(k):
 
                 col = mapping_col.get(idx)
+                print(col)
                 partitions = self._compute_partitions(col=col, n=n)
 
                 # builder registered. First iteration
@@ -163,6 +164,7 @@ class XIClassifier(XI):
                                             num=partitions + 1)).astype('int')
 
                 for i in range(partitions):
+
                     z = y[ix[indx[i]:indx[i + 1], :]]
                     for j in range(k):
 
@@ -179,6 +181,8 @@ class XIClassifier(XI):
 
                 for _, _sep in seps.items():
                     _sep.avg_replica(replica=replica)
+
+
 
         for _, _sep in seps.items():
             _sep.avg()
@@ -273,7 +277,6 @@ class XIRegressor(XI):
             _sep.avg()
 
         return seps
-
 
 # if __name__ == '__main__':
 #     # X = np.random.normal(3, 7, size=5 * 100000)  # df_np[:, 1:11]

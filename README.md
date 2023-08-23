@@ -3,7 +3,7 @@
 
 
 <p align="center">
-    <em>Xi - Post hoc explainations</em>
+    <em>Xi - Post hoc explanations</em>
 </p>
 
 <p align="center">
