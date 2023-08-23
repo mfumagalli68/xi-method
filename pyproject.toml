@@ -32,7 +32,6 @@ matplotlib = "^3.7.2"
 # Testing
 pytest = "*"
 coverage = "*"
-httpx = "*"
 # CI
 codecov = "*"
 
