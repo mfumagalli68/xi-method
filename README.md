@@ -1,8 +1,17 @@
 ![build](https://github.com/mfumagalli68/xi/actions/workflows/python-package.yml/badge.svg)
+![last-commit](https://img.shields.io/github/last-commit/mfumagalli68/xi.svg)
 
-# XI
 
-XI is a python package that implements the paper "Probabilistic Sensitivity Measures and Classification Tasks".<br>
+<p align="center">
+    <em>Xi - Post hoc explainations</em>
+</p>
+
+<p align="center">
+    <img src="logo.PNG">
+</p>
+# Xi
+
+**Xi** is a python package that implements the paper "Probabilistic Sensitivity Measures and Classification Tasks".<br>
 
 The growing size and complexity of data as well as the need of accurate predictions, forces analysts to use black-box
 model. While the success of those models extends statistical application, it also increases the need for
@@ -13,6 +22,7 @@ Measures of statistical association deliver information regarding the strength o
 target and the feature(s) of interest, inferring this insight from the data in a **model-agnostic** fashion.<br>
 In this respect, we note that an important class of measures of statistical associations is represented by probabilistic
 sensitivity measures.<br>
+
 We use these probabilistic sensitivity measures as part of the broad discourse of interpretability in statistical
 machine learning. For brevity, we call this part the Xi-method.<br>
 Briefly, the method consists in evaluating ML model predictions comparing the values of probabilistic sensitivity
