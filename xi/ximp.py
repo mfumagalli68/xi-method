@@ -182,8 +182,6 @@ class XIClassifier(XI):
                 for _, _sep in seps.items():
                     _sep.avg_replica(replica=replica)
 
-
-
         for _, _sep in seps.items():
             _sep.avg()
 
@@ -208,7 +206,10 @@ class XIRegressor(XI):
         if isinstance(separation_measurement, str):
             separation_measurement = [separation_measurement]
 
-        mapping_col = {k: v for k, v in zip(range(X.shape[1]), X.columns)}
+        if isinstance(X, pd.DataFrame):
+            mapping_col = {k: v for k, v in zip(range(X.shape[1]), X.columns)}
+        else:
+            mapping_col = {k: str(v) for k, v in zip(range(X.shape[1]), range(X.shape[1]))}
 
         X = X.values if isinstance(X, pd.DataFrame) else X
         n, k = X.shape
@@ -243,17 +244,18 @@ class XIRegressor(XI):
 
         for replica in range(replicates):
 
-            ix = np.argsort(X + np.random.rand(*X.shape), axis=0)
-
             for idx in range(k):
-                print(idx)
-                col = mapping_col.get(idx)
 
+                col = mapping_col.get(idx)
                 # builder registered. First iteration
                 # builder will create object.
                 # Second iteration it won't overwrite since it's already created.
                 for _sep_measure, builder_name in zip(separation_measurement, builder_names):
-                    seps[_sep_measure] = factory.create(_sep_measure, row=self.m, col=k, replica=replicates)
+                    seps[_sep_measure] = factory.create(_sep_measure,
+                                                        row=self.m,
+                                                        col=k,
+                                                        replica=replicates,
+                                                        idx_to_col=mapping_col)
 
                 indx = np.round(np.linspace(start=0,
                                             stop=n,
@@ -262,13 +264,14 @@ class XIRegressor(XI):
                 for i in range(self.m):
 
                     for j in range(k):
+                        ix = np.argsort(X[:, j] + np.random.rand(*X[:, j].shape), axis=0)
                         z = y[ix[indx[i]:indx[i + 1]]]
                         dmass = rv_histogram(np.histogram(z, bins='auto'))
                         condmass = [dmass.pdf(point) for point in y_grid]
                         condmass = nrmd(condmass)
 
                         for _, _sep in seps.items():
-                            _sep.compute(i=i, j=j, dmass=dmass, condmass=condmass, totalmass=totalmass)
+                            _sep.compute(i=i, j=j, dmass=dmass, condmass=condmass, totalmass=totalmass, type=self.type)
 
                 for _, _sep in seps.items():
                     _sep.avg_replica(replica=replica)
