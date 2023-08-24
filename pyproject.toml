@@ -21,7 +21,7 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-python = ">=3.9,<3.13"
+python = ">=3.8"
 numpy = "^1.23.2"
 pytest = "^7.0"
 line-profiler-pycharm = "^1.1.0"
