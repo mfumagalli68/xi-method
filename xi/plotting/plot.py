@@ -7,7 +7,7 @@ from xi.separation.measurement import SeparationMeasurement
 from xi.exceptions import XiError
 
 def plot(type: AnyStr, explain: Dict, separation_measurement: AnyStr, **options):
-    if type == 'tabular':
+    if type in ('tabular','text'):
         _tabular_plot(explain, separation_measurement, **options)  # k most important variable
     if type == 'image':
         _image_plot(explain, separation_measurement, **options)
@@ -27,7 +27,7 @@ def _tabular_plot(explain: Dict, separation_measurement: AnyStr, **options):
         raise KeyError(f"{separation_measurement} not previously computed.")
 
     data = {'variable': sep.idx_to_col.values(),
-            'value': sep.value}
+            'value': sep.explanation}
 
     df = pd.DataFrame(data=data, columns=['variable', 'value'])
     df = df.sort_values('value', ascending=True).reset_index(drop=True)
@@ -46,7 +46,7 @@ def _image_plot(explain: Dict,
                 shape: tuple,
                 **options):
 
-    sep = explain.get(separation_measurement).value
+    sep = explain.get(separation_measurement).explanation
     try:
         sep = sep.reshape(shape)
     except ValueError as e:
