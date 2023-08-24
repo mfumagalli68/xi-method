@@ -26,7 +26,12 @@ numpy = "^1.23.2"
 pytest = "^7.0"
 line-profiler-pycharm = "^1.1.0"
 pandas = "^2.0.3"
-scipy = "^1.11.2"
+scipy=[
+    { version = "^1.11.2", python = "~3.9"},
+    { version = "^1.11.2", python = "~3.10"},
+    { version = "^1.11.2", python = "~3.11"},
+    { version = "^1.10.0", python = "~3.8"}
+]
 matplotlib = "^3.7.2"
 
 [tool.poetry.dev-dependencies]
