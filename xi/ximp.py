@@ -1,13 +1,16 @@
 import abc
+import multiprocessing
 from operator import itemgetter
 
 from scipy.stats import rv_histogram
-
+from multiprocessing import Pool
 from xi.exceptions import *
 from xi.plotting.plot import *
 from xi.separation.measurement import *
 from xi.utils import *
-
+import datetime
+import time
+from joblib import Parallel, delayed
 
 
 class XI(object):
@@ -73,7 +76,7 @@ class XIClassifier(XI):
         return partition
 
     def explain(self, X: pd.DataFrame, y: np.array, replicates: int = 1,
-                separation_measurement: Union[AnyStr, List] = 'L1') -> Dict:
+                separation_measurement: Union[AnyStr, List] = 'L1', multiprocess=False) -> Dict:
         """
         Provide post-hoc explanations
 
@@ -156,24 +159,37 @@ class XIClassifier(XI):
                                             stop=n,
                                             num=partitions + 1)).astype('int')
 
+                def _compute_pmf(j):
+                    condmass = np.zeros(len(uniquey))
+                    for kk in range(len(uniquey)):
+                        condmass[kk] = np.count_nonzero(z[:, j] == uniquey[kk])
+
+                    condmass = nrmd(condmass)
+
+                    dmass = np.subtract(condmass, totalmass)
+
+                    return (condmass, dmass)
+
                 for i in range(partitions):
 
                     z = y[ix[indx[i]:indx[i + 1], :]]
+
+                    if multiprocess:
+                        n_jobs = multiprocessing.cpu_count() - 1
+                        results = Parallel(n_jobs=n_jobs) \
+                            (delayed(_compute_pmf)(j) for j in range(k))
+                    else:
+                        results = []
+                        for j in range(k):
+                            results.append(_compute_pmf(j))
+
                     for j in range(k):
-
-                        condmass = np.zeros(len(uniquey))
-                        for kk in range(len(uniquey)):
-                            condmass[kk] = np.count_nonzero(z[:, j] == uniquey[kk])
-
-                        condmass = nrmd(condmass)
-
-                        dmass = np.subtract(condmass, totalmass)
-
                         for _, _sep in seps.items():
-                            _sep.compute(i=i, j=j, dmass=dmass, condmass=condmass, totalmass=totalmass, type=self.type)
+                            _sep.compute(i=i, j=j, dmass=results[j][1], condmass=results[j][0], totalmass=totalmass,
+                                         type=self.type)
 
-                for _, _sep in seps.items():
-                    _sep.avg_replica(replica=replica)
+            for _, _sep in seps.items():
+                _sep.avg_replica(replica=replica)
 
         for _, _sep in seps.items():
             _sep.avg()
@@ -184,7 +200,7 @@ class XIClassifier(XI):
 class XIRegressor(XI):
 
     def __init__(self,
-                 m: Union[dict, int] = None,
+                 m: Union[dict, int] = 20,
                  grid: int = None,
                  ties=False,
                  type='regressor'):
@@ -194,7 +210,8 @@ class XIRegressor(XI):
                 X: pd.DataFrame,
                 y: np.array,
                 replicates: int,
-                separation_measurement: Union[AnyStr, List]) -> Dict:
+                separation_measurement: Union[AnyStr, List],
+                multiprocess=False) -> Dict:
 
         if isinstance(separation_measurement, str):
             separation_measurement = [separation_measurement]
@@ -239,6 +256,8 @@ class XIRegressor(XI):
 
             for idx in range(k):
 
+                logging.info(f'Doing variable {idx} at '
+                             f'{datetime.datetime.fromtimestamp(time.time())}')
                 col = mapping_col.get(idx)
                 # builder registered. First iteration
                 # builder will create object.
@@ -254,27 +273,57 @@ class XIRegressor(XI):
                                             stop=n,
                                             num=self.m + 1)).astype('int')
 
+                def _compute_pmf(j):
+                    ix = np.argsort(X[:, j] + np.random.rand(*X[:, j].shape), axis=0)
+                    z = y[ix[indx[i]:indx[i + 1]]]
+                    dmass = rv_histogram(np.histogram(z, bins='auto'))
+                    condmass = [dmass.pdf(point) for point in y_grid]
+                    condmass = nrmd(condmass)
+
+                    return (condmass, dmass)
+
                 for i in range(self.m):
+                    if multiprocess:
+                        n_jobs = multiprocessing.cpu_count() - 1
+                        results = Parallel(n_jobs=n_jobs) \
+                            (delayed(_compute_pmf)(j) for j in range(k))
+                    else:
+                        results = []
+                        for j in range(k):
+                            results.append(_compute_pmf(j))
 
                     for j in range(k):
-                        ix = np.argsort(X[:, j] + np.random.rand(*X[:, j].shape), axis=0)
-                        z = y[ix[indx[i]:indx[i + 1]]]
-                        dmass = rv_histogram(np.histogram(z, bins='auto'))
-                        condmass = [dmass.pdf(point) for point in y_grid]
-                        condmass = nrmd(condmass)
-
                         for _, _sep in seps.items():
-                            _sep.compute(i=i, j=j, dmass=dmass, condmass=condmass, totalmass=totalmass, type=self.type)
+                            _sep.compute(i=i, j=j, dmass=results[j][1], condmass=results[j][0], totalmass=totalmass,
+                                         type=self.type)
 
-                for _, _sep in seps.items():
-                    _sep.avg_replica(replica=replica)
+            for _, _sep in seps.items():
+                _sep.avg_replica(replica=replica)
 
         for _, _sep in seps.items():
             _sep.avg()
 
         return seps
 
-# if __name__ == '__main__':
+
+if __name__ == '__main__':
+
+    import time
+
+    np.random.seed(2)
+    Y = np.random.normal(size=1_000_000)
+    X = np.random.normal(10, 10, size=100 * 1_000_000)  # df_np[:, 1:11]
+    X = X.reshape((1_000_000, 100))
+    start_time = time.time()
+    xi = XIRegressor(m=100, grid=100)
+    p = xi.explain(X=X, y=Y, replicates=1, separation_measurement='Kullback-leibler',multiprocess=True)
+    print("--- With multiprocess: %s seconds ---" % (time.time() - start_time))
+
+    start_time = time.time()
+    xi = XIRegressor(m=100, grid=100)
+    p = xi.explain(X=X, y=Y, replicates=1, separation_measurement='Kullback-leibler')
+    print("--- Without multiprocess:%s seconds ---" % (time.time() - start_time))
+
 #     # X = np.random.normal(3, 7, size=5 * 100000)  # df_np[:, 1:11]
 #     # X = X.reshape((100000, 5))
 #     # reading from the file
