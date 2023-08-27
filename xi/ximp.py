@@ -1,15 +1,14 @@
 import abc
+import logging
 import multiprocessing
 from operator import itemgetter
-
 from scipy.stats import rv_histogram
-from multiprocessing import Pool
-from xi.exceptions import *
 from xi.plotting.plot import *
 from xi.separation.measurement import *
 from xi.utils import *
 import datetime
 import time
+from tqdm import tqdm
 from joblib import Parallel, delayed
 
 
@@ -29,6 +28,17 @@ class XI(object):
         self.grid = grid
         self.type = type
 
+    def _compute_default_m(self,
+                           n: int) -> int:
+        """
+        Compute default partition number
+        :param n:
+        :return:
+        """
+        val = np.ceil(np.log(n)).astype('int')
+
+        return val
+
     @abc.abstractmethod
     def explain(self, *args, **kwargs):
         pass
@@ -44,17 +54,6 @@ class XIClassifier(XI):
                  type='classifier'):
 
         super(XIClassifier, self).__init__(m=m, obs=obs, discrete=discrete, ties=ties, type=type)
-
-    def _compute_default_m(self,
-                           n: int) -> int:
-        """
-        Compute default partition number
-        :param n:
-        :return:
-        """
-        val = np.ceil(np.sqrt(n)).astype('int')
-
-        return val
 
     def _compute_partitions(self, col: AnyStr, n: int) -> int:
 
@@ -75,8 +74,14 @@ class XIClassifier(XI):
 
         return partition
 
-    def explain(self, X: pd.DataFrame, y: np.array, replicates: int = 1,
-                separation_measurement: Union[AnyStr, List] = 'L1', multiprocess=False) -> Dict:
+    @timeit
+    def explain(self,
+                X: pd.DataFrame,
+                y: np.array,
+                replicates: int = 1,
+                separation_measurement: Union[AnyStr, List] = 'L1',
+                multiprocess=False,
+                verbose=False) -> Dict:
         """
         Provide post-hoc explanations
 
@@ -84,6 +89,8 @@ class XIClassifier(XI):
         :param y: target variable
         :param replicates: number of replications
         :param separation_measurement: Separation measurement.
+        :param multiprocess:
+        :param verbose:
         Read documentation for the implemented ones.
         You can specify one or more than one as list.
 
@@ -101,6 +108,8 @@ class XIClassifier(XI):
 
         X = X.values if isinstance(X, pd.DataFrame) else X
         n, k = X.shape
+
+        X = np.float32(X)
 
         partition_validation(self.m, k)
         partition_validation(self.obs, k)
@@ -135,13 +144,17 @@ class XIClassifier(XI):
         for _sep_measure, builder_name in zip(separation_measurement, builder_names):
             factory.register_builder(_sep_measure, builder_name())
 
+        logging.info('Beginning computing explanations...')
+
         for replica in range(replicates):
 
             ix = np.argsort(X + np.random.rand(*X.shape), axis=0)
 
-            for idx in range(k):
+            for idx in tqdm(range(k)):
 
                 col = mapping_col.get(idx)
+                if verbose:
+                    logging.info(f'Computing explanation value for variable {col}')
 
                 partitions = self._compute_partitions(col=col, n=n)
 
@@ -211,7 +224,8 @@ class XIRegressor(XI):
                 y: np.array,
                 replicates: int,
                 separation_measurement: Union[AnyStr, List],
-                multiprocess=False) -> Dict:
+                multiprocess=False,
+                verbose=False) -> Dict:
 
         if isinstance(separation_measurement, str):
             separation_measurement = [separation_measurement]
@@ -224,7 +238,13 @@ class XIRegressor(XI):
         X = X.values if isinstance(X, pd.DataFrame) else X
         n, k = X.shape
 
+        X = np.float32(X)
+
         partition_validation(self.m, k)
+        if self.m is None:
+            partition = self._compute_default_m(n=n)
+        else:
+            partition = self.m
 
         separation_measurement_validation(measure=separation_measurement)
 
@@ -252,13 +272,14 @@ class XIRegressor(XI):
         for _sep_measure, builder_name in zip(separation_measurement, builder_names):
             factory.register_builder(_sep_measure, builder_name())
 
+        if verbose:
+            logging.info(f'Computing explanation value for variable {col}')
         for replica in range(replicates):
 
-            for idx in range(k):
+            for idx in tqdm(range(k)):
 
-                logging.info(f'Doing variable {idx} at '
-                             f'{datetime.datetime.fromtimestamp(time.time())}')
                 col = mapping_col.get(idx)
+                logging.info(f'Computing explanation value for variable {col}')
                 # builder registered. First iteration
                 # builder will create object.
                 # Second iteration it won't overwrite since it's already created.
@@ -282,7 +303,8 @@ class XIRegressor(XI):
 
                     return (condmass, dmass)
 
-                for i in range(self.m):
+                for i in range(partition):
+
                     if multiprocess:
                         n_jobs = multiprocessing.cpu_count() - 1
                         results = Parallel(n_jobs=n_jobs) \
@@ -305,24 +327,33 @@ class XIRegressor(XI):
 
         return seps
 
-
-if __name__ == '__main__':
-
-    import time
-
-    np.random.seed(2)
-    Y = np.random.normal(size=1_000_000)
-    X = np.random.normal(10, 10, size=100 * 1_000_000)  # df_np[:, 1:11]
-    X = X.reshape((1_000_000, 100))
-    start_time = time.time()
-    xi = XIRegressor(m=100, grid=100)
-    p = xi.explain(X=X, y=Y, replicates=1, separation_measurement='Kullback-leibler',multiprocess=True)
-    print("--- With multiprocess: %s seconds ---" % (time.time() - start_time))
-
-    start_time = time.time()
-    xi = XIRegressor(m=100, grid=100)
-    p = xi.explain(X=X, y=Y, replicates=1, separation_measurement='Kullback-leibler')
-    print("--- Without multiprocess:%s seconds ---" % (time.time() - start_time))
+#
+# if __name__ == '__main__':
+#     import time
+#
+#     np.random.seed(2)
+#
+#     for idx, n_var in enumerate([6, 8, 10, 12, 14, 16]):
+#         tot = n_var * n_var
+#         size = 500_000
+#         print('Experiment {}.\n Parameter n_variables {} size={}'.format(idx, tot, size))
+#         Y = np.random.choice(np.array([1, 2, 3]), size=size)
+#         X = np.random.normal(n_var, n_var, size=tot * size)  # df_np[:, 1:11]
+#         X = X.reshape((size, tot))
+#         start_time = time.time()
+#         # xi = XIClassifier(m=50)
+#         # p = xi.explain(X=X, y=Y, replicates=1, separation_measurement='Kullback-leibler', multiprocess=True)
+#         # print("--- With multiprocess: %s seconds ---" % (time.time() - start_time))
+#         #
+#         # start_time = time.time()
+#         xi = XIClassifier()
+#         p = xi.explain(X=X, y=Y, replicates=1, separation_measurement='L1', multiprocess=False, verbose=True)
+#         print("--- With multiprocess: %s seconds ---" % (time.time() - start_time))
+#
+#     # start_time = time.time()
+#     # xi = XIClassifier(m=300)
+#     # p = xi.explain(X=X, y=Y, replicates=1, separation_measurement='Kullback-leibler')
+#     # print("--- Without multiprocess:%s seconds ---" % (time.time() - start_time))
 
 #     # X = np.random.normal(3, 7, size=5 * 100000)  # df_np[:, 1:11]
 #     # X = X.reshape((100000, 5))

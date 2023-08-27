@@ -1,13 +1,25 @@
 import itertools
 import logging
+import time
+from functools import wraps
+from typing import *
 
 from xi.exceptions import XiError
-from typing import *
-import numpy as np
 from xi.separation.measurement import builder_mapping
 
 
-def partition_validation(arg: Union[int, Dict, float], k: int) -> None:
+def timeit(func):
+    @wraps(func)
+    def timeit_wrapper(*args, **kwargs):
+        start_time = time.perf_counter()
+        result = func(*args, **kwargs)
+        end_time = time.perf_counter()
+        total_time = end_time - start_time
+        print(f'Total execution time: {total_time:.4f} seconds')
+        return result
+    return timeit_wrapper
+
+def partition_validation(arg: Union[int, Dict, float,List], k: int) -> None:
     """
     Validate partition specified by the user
 
