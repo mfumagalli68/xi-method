@@ -80,7 +80,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
 
 x_train, x_test, y_train, y_test = train_test_split(df.values, Y, test_size=0.3, random_state=42)
-lr = LogisticRegression(max_iter=100)
+lr = LogisticRegression(multi_class='multinomial',max_iter=100)
 lr.fit(x_train, y_train)
 y_pred = lr.predict(x_test)
 
