@@ -31,3 +31,5 @@ def test_overlap_args_fail_m():
         check_args_overlap(m, obs, discrete)
 
     print(f"\n{error.value}")
+
+

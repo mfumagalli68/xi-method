@@ -90,7 +90,7 @@ class L2Service(SeparationMeasurement):
         return np.sum(np.square(dmass))
 
     def _regressor(self, totalmass, condmass, **ignored):
-        np.sqrt(np.sum(np.square(totalmass - condmass)))
+        return np.sqrt(np.sum(np.square(totalmass - condmass)))
 
 
 class L2Builder:

@@ -5,10 +5,9 @@ from scipy.stats import rv_histogram
 from xi.plotting.plot import *
 from xi.separation.measurement import *
 from xi.utils import *
-import datetime
-import time
+
 from tqdm import tqdm
-from joblib import Parallel, delayed
+
 
 
 class XI(object):
@@ -311,11 +310,12 @@ class XIRegressor(XI):
 #         tot = n_var * n_var
 #         size = 500_000
 #         print('Experiment {}.\n Parameter n_variables {} size={}'.format(idx, tot, size))
-#         Y = np.random.choice(np.array([1, 2, 3]), size=size)
-#         X = np.random.normal(n_var, n_var, size=tot * size)  # df_np[:, 1:11]
-#         X = X.reshape((size, tot))
+    Y = np.random.choice(np.array([1, 2, 3]), size=1000)
+    X = np.random.normal(2, 2, size=4 * 1000)  # df_np[:, 1:11]
+    X = X.reshape((1000, 4))
 #         start_time = time.time()
-#         # xi = XIClassifier(m=50)
+    xi = XIClassifier(m=-1)
+    xi.explain(X=X,y=Y,replicates=1, separation_measurement='Kullback-leibler')
 #         # p = xi.explain(X=X, y=Y, replicates=1, separation_measurement='Kullback-leibler', multiprocess=True)
 #         # print("--- With multiprocess: %s seconds ---" % (time.time() - start_time))
 #         #

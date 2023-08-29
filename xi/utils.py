@@ -28,12 +28,12 @@ def partition_validation(arg: Union[int, Dict, float,List], k: int) -> None:
     :return:
     """
     if isinstance(arg, float):
-        raise TypeError('Argument need to be a positive integer')
+        raise TypeError(f"Number of partitions need to be a positive integer")
 
     if isinstance(arg, int):
         if arg <= 0:
-            raise ValueError('Argument could only be a strictly positive integer'
-                             'or a dictionary.')
+            raise ValueError(f"Number of partitions could only be a strictly positive integer"
+                             f"or a dictionary.")
     if isinstance(arg, dict):
         keys = len(list(arg.keys()))
         if keys > k:
