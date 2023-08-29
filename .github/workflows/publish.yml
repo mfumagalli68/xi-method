@@ -25,8 +25,7 @@ jobs:
       - name: Install poetry
         uses: snok/install-poetry@v1
       - name: Build distribution
-        run: |
-          source $HOME/.poetry/env && poetry build
+        run: poetry build
       - name: Publish distribution to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
