@@ -12,25 +12,7 @@ def test_separation_measurement_m_int():
     df.drop(columns='quality', inplace=True)
 
     xi = XIClassifier(m=20)
-    p = xi.explain(X=df, y=Y, replicates=50, separation_measurement='L1', multiprocess=False)
-
-    exp = np.array(
-        [0.2109063, 0.19921303, 0.1841079, 0.15099798, 0.12599739, 0.20654458, 0.28604079, 0.16488397, 0.16463576,
-         0.1880844, 0.42336663])
-    np.testing.assert_allclose(p.get('L1').explanation,
-                               exp,
-                               rtol=0.05,
-                               atol=0.05)
-
-
-def test_separation_measurement_m_int_multiprocess():
-    np.random.seed(3)
-    df = pd.read_csv(os.path.abspath(path), sep=";")
-    Y = df.quality.values
-    df.drop(columns='quality', inplace=True)
-
-    xi = XIClassifier(m=20)
-    p = xi.explain(X=df, y=Y, replicates=50, separation_measurement='L1', multiprocess=True)
+    p = xi.explain(X=df, y=Y, replicates=50, separation_measurement='L1')
 
     exp = np.array(
         [0.2109063, 0.19921303, 0.1841079, 0.15099798, 0.12599739, 0.20654458, 0.28604079, 0.16488397, 0.16463576,
@@ -85,26 +67,7 @@ def test_separation_measurement_regressor():
 
     xi = XIRegressor(m=10, grid=100)
     p = xi.explain(X=X, y=Y, replicates=1,
-                   separation_measurement='Kullback-leibler',
-                   multiprocess=True)
-
-    exp = np.array(
-        [0.065, 0.05, 0.065, 0.061, 0.05])
-    np.testing.assert_allclose(p.get('Kullback-leibler').explanation,
-                               exp,
-                               rtol=0.05,
-                               atol=0.05)
-
-def test_separation_measurement_regressor_multiprocess():
-    np.random.seed(2)
-    Y = np.random.normal(size=1000)
-    X = np.random.normal(3, 2, size=5 * 1000)  # df_np[:, 1:11]
-    X = X.reshape((1000, 5))
-
-    xi = XIRegressor(m=10, grid=100)
-    p = xi.explain(X=X, y=Y, replicates=1,
-                   separation_measurement='Kullback-leibler',
-                   multiprocess=False)
+                   separation_measurement='Kullback-leibler')
 
     exp = np.array(
         [0.065, 0.05, 0.065, 0.061, 0.05])
