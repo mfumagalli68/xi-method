@@ -64,6 +64,9 @@ class L1Service(SeparationMeasurement):
     def _compute(self, dmass, **kwargs):
         return np.sum(np.abs(dmass))
 
+    def _regressor(self, dmass, condmass, totalmass):
+        return np.sum(np.abs(totalmass - condmass))
+
 
 class L1Builder:
     def __init__(self):
@@ -85,6 +88,9 @@ class L2Service(SeparationMeasurement):
 
     def _compute(self, dmass, **kwargs):
         return np.sum(np.square(dmass))
+
+    def _regressor(self, totalmass, condmass, **ignored):
+        np.sqrt(np.sum(np.square(totalmass - condmass)))
 
 
 class L2Builder:
@@ -111,9 +117,8 @@ class KLService(SeparationMeasurement):
         kl[np.isnan(kl)] = 0
         return np.sum(kl)
 
-    def _regressor(self, totalmass, condmass, dmass,**ignored):
-        return np.sum(rel_entr(nrmd(totalmass[condmass != 0]),
-                               nrmd(condmass[condmass != 0])))
+    def _regressor(self, totalmass, condmass, dmass, **ignored):
+        return np.sum(rel_entr(totalmass, condmass))
 
 
 class KLBuilder:
@@ -148,8 +153,9 @@ class KuiperService(SeparationMeasurement):
     def _compute(self, dmass, **ignored):
         return np.max(np.abs(dmass))
 
-    def _regressor(self,dmass,condmass,totalmass,**ignored):
-        pass
+    def _regressor(self, dmass, condmass, totalmass, **ignored):
+        val = max(totalmass - condmass) - min(totalmass - condmass)
+        return val
 
 
 class HellingerBuilder:
@@ -170,6 +176,9 @@ class HellingerService(SeparationMeasurement):
         super(HellingerService, self).__init__(row, col, replica, idx_to_col)
 
     def _compute(self, condmass, totalmass, **ignored):
+        return 1 - np.sum(np.sqrt(np.multiply(condmass, totalmass)))
+
+    def _regressor(self, condmass, totalmass, **ignored):
         return 1 - np.sum(np.sqrt(np.multiply(condmass, totalmass)))
 
 

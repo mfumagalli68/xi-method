@@ -1,6 +1,5 @@
 import abc
 import logging
-import multiprocessing
 from operator import itemgetter
 from scipy.stats import rv_histogram
 from xi.plotting.plot import *
@@ -80,7 +79,6 @@ class XIClassifier(XI):
                 y: np.array,
                 replicates: int = 1,
                 separation_measurement: Union[AnyStr, List] = 'L1',
-                multiprocess=False,
                 verbose=False) -> Dict:
         """
         Provide post-hoc explanations
@@ -89,7 +87,6 @@ class XIClassifier(XI):
         :param y: target variable
         :param replicates: number of replications
         :param separation_measurement: Separation measurement.
-        :param multiprocess:
         :param verbose:
         Read documentation for the implemented ones.
         You can specify one or more than one as list.
@@ -172,33 +169,20 @@ class XIClassifier(XI):
                                             stop=n,
                                             num=partitions + 1)).astype('int')
 
-                def _compute_pmf(j):
-                    condmass = np.zeros(len(uniquey))
-                    for kk in range(len(uniquey)):
-                        condmass[kk] = np.count_nonzero(z[:, j] == uniquey[kk])
-
-                    condmass = nrmd(condmass)
-
-                    dmass = np.subtract(condmass, totalmass)
-
-                    return (condmass, dmass)
-
                 for i in range(partitions):
 
                     z = y[ix[indx[i]:indx[i + 1], :]]
-
-                    if multiprocess:
-                        n_jobs = multiprocessing.cpu_count() - 1
-                        results = Parallel(n_jobs=n_jobs) \
-                            (delayed(_compute_pmf)(j) for j in range(k))
-                    else:
-                        results = []
-                        for j in range(k):
-                            results.append(_compute_pmf(j))
-
                     for j in range(k):
+                        condmass = np.zeros(len(uniquey))
+                        for kk in range(len(uniquey)):
+                            condmass[kk] = np.count_nonzero(z[:, j] == uniquey[kk])
+
+                        condmass = nrmd(condmass)
+
+                        dmass = np.subtract(condmass, totalmass)
+
                         for _, _sep in seps.items():
-                            _sep.compute(i=i, j=j, dmass=results[j][1], condmass=results[j][0], totalmass=totalmass,
+                            _sep.compute(i=i, j=j, dmass=dmass, condmass=condmass, totalmass=totalmass,
                                          type=self.type)
 
             for _, _sep in seps.items():
@@ -224,7 +208,6 @@ class XIRegressor(XI):
                 y: np.array,
                 replicates: int,
                 separation_measurement: Union[AnyStr, List],
-                multiprocess=False,
                 verbose=False) -> Dict:
 
         if isinstance(separation_measurement, str):
@@ -272,14 +255,14 @@ class XIRegressor(XI):
         for _sep_measure, builder_name in zip(separation_measurement, builder_names):
             factory.register_builder(_sep_measure, builder_name())
 
-        if verbose:
-            logging.info(f'Computing explanation value for variable {col}')
+
         for replica in range(replicates):
 
             for idx in tqdm(range(k)):
 
                 col = mapping_col.get(idx)
-                logging.info(f'Computing explanation value for variable {col}')
+                if verbose:
+                    logging.info(f'Computing explanation value for variable {col}')
                 # builder registered. First iteration
                 # builder will create object.
                 # Second iteration it won't overwrite since it's already created.
@@ -294,29 +277,20 @@ class XIRegressor(XI):
                                             stop=n,
                                             num=self.m + 1)).astype('int')
 
-                def _compute_pmf(j):
-                    ix = np.argsort(X[:, j] + np.random.rand(*X[:, j].shape), axis=0)
-                    z = y[ix[indx[i]:indx[i + 1]]]
-                    dmass = rv_histogram(np.histogram(z, bins='auto'))
-                    condmass = [dmass.pdf(point) for point in y_grid]
-                    condmass = nrmd(condmass)
-
-                    return (condmass, dmass)
-
                 for i in range(partition):
 
-                    if multiprocess:
-                        n_jobs = multiprocessing.cpu_count() - 1
-                        results = Parallel(n_jobs=n_jobs) \
-                            (delayed(_compute_pmf)(j) for j in range(k))
-                    else:
-                        results = []
-                        for j in range(k):
-                            results.append(_compute_pmf(j))
-
                     for j in range(k):
+
+                        ix = np.argsort(X[:, j] + np.random.rand(*X[:, j].shape), axis=0)
+                        z = y[ix[indx[i]:indx[i + 1]]]
+                        dmass = rv_histogram(np.histogram(z, bins='auto'))
+                        condmass = [dmass.pdf(point) for point in y_grid]
+                        condmass = nrmd(condmass)
+                        condmass_supp = nrmd(condmass[condmass != 0])
+                        totalmass_supp = nrmd(totalmass[condmass != 0])
+
                         for _, _sep in seps.items():
-                            _sep.compute(i=i, j=j, dmass=results[j][1], condmass=results[j][0], totalmass=totalmass,
+                            _sep.compute(i=i, j=j, dmass=dmass, condmass=condmass_supp, totalmass=totalmass_supp,
                                          type=self.type)
 
             for _, _sep in seps.items():
