@@ -1,12 +1,14 @@
 name: publish
 
-on: push
+on:
+  push:
+    branches:
+      - main
+
 jobs:
   publish:
     name: Upload release to pypi
     if: github.event_name == 'push'
-    branches:
-      - main
     runs-on: ubuntu-latest
     strategy:
       max-parallel: 1
