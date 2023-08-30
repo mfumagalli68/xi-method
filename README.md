@@ -40,7 +40,7 @@ To sum up, **Xi** has three main advantages:
 Install from pypy:
 
 ```[python]
-pip install xi
+pip install xi-method
 ```
 
 # Usage
