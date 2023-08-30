@@ -1,5 +1,5 @@
 import  numpy as np
-from xi.ximp import XIClassifier
+from xi_method.ximp import XIClassifier
 import pandas as pd
 import os
 

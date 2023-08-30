@@ -1,6 +1,6 @@
 import pytest
-from xi.ximp import *
-from xi.utils import separation_measurement_validation
+from xi_method.ximp import *
+from xi_method.utils import separation_measurement_validation
 
 
 def test_separation_measurement_validation_fail():

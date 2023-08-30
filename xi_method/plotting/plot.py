@@ -3,8 +3,8 @@ import sys
 import matplotlib.pyplot as plt
 import pandas as pd
 from typing import *
-from xi.separation.measurement import SeparationMeasurement
-from xi.exceptions import XiError
+from xi_method.separation.measurement import SeparationMeasurement
+from xi_method.exceptions import XiError
 
 def plot(type: AnyStr, explain: Dict, separation_measurement: AnyStr, **options):
     if type in ('tabular','text'):

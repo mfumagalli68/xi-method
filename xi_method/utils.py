@@ -4,8 +4,8 @@ import time
 from functools import wraps
 from typing import *
 
-from xi.exceptions import XiError
-from xi.separation.measurement import builder_mapping
+from xi_method.exceptions import XiError
+from xi_method.separation.measurement import builder_mapping
 
 
 def timeit(func):

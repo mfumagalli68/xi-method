@@ -1,5 +1,5 @@
 import os.path
-from xi.ximp import *
+from xi_method.ximp import *
 import numpy as np
 
 path = 'tests/data/winequality-red.csv'

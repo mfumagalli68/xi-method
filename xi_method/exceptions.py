@@ -1,5 +1,5 @@
 class XiError(Exception):
-    """Generic xi exception"""
+    """Generic xi_method exception"""
 
     def __init__(self, msg):
         self.msg = msg

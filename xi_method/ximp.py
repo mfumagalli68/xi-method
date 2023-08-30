@@ -2,9 +2,9 @@ import abc
 import logging
 from operator import itemgetter
 from scipy.stats import rv_histogram
-from xi.plotting.plot import *
-from xi.separation.measurement import *
-from xi.utils import *
+from xi_method.plotting.plot import *
+from xi_method.separation.measurement import *
+from xi_method.utils import *
 
 from tqdm import tqdm
 

@@ -1,5 +1,5 @@
-from xi.utils import check_args_overlap
-from xi.exceptions import XiError
+from xi_method.utils import check_args_overlap
+from xi_method.exceptions import XiError
 import pytest
 
 

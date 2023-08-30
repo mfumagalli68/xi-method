@@ -1,4 +1,4 @@
-from xi.ximp import *
+from xi_method.ximp import *
 
 if __name__ == '__main__':
     Y = np.random.choice(np.array([1, 2, 3]), size=1000)
