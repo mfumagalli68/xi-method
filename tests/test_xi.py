@@ -1,13 +1,12 @@
-import os.path
 from xi_method.ximp import *
 import numpy as np
 
-path = 'xi_method/data/winequality-red.csv'
+
 
 
 def test_separation_measurement_m_int():
     np.random.seed(3)
-    df = pd.read_csv(os.path.abspath(path), sep=";")
+    df = load_wine_quality_dataset()
     Y = df.quality.values
     df.drop(columns='quality', inplace=True)
 
@@ -25,7 +24,7 @@ def test_separation_measurement_m_int():
 
 def test_separation_measurement_obs():
     np.random.seed(3)
-    df = pd.read_csv(os.path.abspath(path), sep=";")
+    df = load_wine_quality_dataset()
     Y = df.quality.values
     df.drop(columns='quality', inplace=True)
 
@@ -37,7 +36,7 @@ def test_separation_measurement_obs():
 
 def test_separation_measurement_discrete():
     np.random.seed(3)
-    df = pd.read_csv(os.path.abspath(path), sep=";")
+    df = load_wine_quality_dataset()
     Y = df.quality.values
     df.drop(columns='quality', inplace=True)
 
@@ -49,7 +48,7 @@ def test_separation_measurement_discrete():
 
 def test_separation_measurement_m_dict():
     np.random.seed(3)
-    df = pd.read_csv(os.path.abspath(path), sep=";")
+    df = load_wine_quality_dataset()
     Y = df.quality.values
     df.drop(columns='quality', inplace=True)
 
@@ -79,7 +78,7 @@ def test_separation_measurement_regressor():
 
 def test_separation_measurement_hellinger():
     np.random.seed(3)
-    df = pd.read_csv(os.path.abspath(path), sep=";")
+    df = load_wine_quality_dataset()
     Y = df.quality.values
     df.drop(columns='quality', inplace=True)
 
@@ -98,7 +97,7 @@ def test_separation_measurement_hellinger():
 
 def test_separation_measurement_L2():
     np.random.seed(3)
-    df = pd.read_csv(os.path.abspath(path), sep=";")
+    df = load_wine_quality_dataset()
     Y = df.quality.values
     df.drop(columns='quality', inplace=True)
 

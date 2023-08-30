@@ -55,7 +55,11 @@ Import your data in a pandas dataframe format, splitting covariates and independ
 variable.<br>
 
 ```[python]
-df = pd.read_csv("/tests/data/winequality-red.csv", sep=";")
+from xi_method.utils import load_dataset
+
+# load wine quality
+df = load_wine_quality_dataset()
+
 Y = df.quality
 df.drop(columns='quality', inplace=True)
 ```

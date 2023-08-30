@@ -3,10 +3,17 @@ import logging
 import time
 from functools import wraps
 from typing import *
+import pandas as pd
 
 from xi_method.exceptions import XiError
 from xi_method.separation.measurement import builder_mapping
+from xi_method import _ROOT
 
+def load_wine_quality_dataset():
+
+    path = _ROOT / 'data' / 'winequality-red.csv'
+    data = pd.read_csv(path,sep=";")
+    return data
 
 def timeit(func):
     @wraps(func)

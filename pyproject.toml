@@ -1,11 +1,11 @@
 [tool.poetry]
 name = "xi-method"
-version = "0.1.2"
+version = "0.1.3"
 description = "Post hoc explanations for ML models through measures of statistical dependence"
 authors = ["marco.fumagalli <m.fumagalli68@gmail.com>",
-    "valentina.ghidini <vale.ghidini95@gmail.com"]
+            "valentina.ghidini <vale.ghidini95@gmail.com"]
 maintainers = ["marco.fumagalli <m.fumagalli68@gmail.com>",
-    "valentina.ghidini <vale.ghidini95@gmail.com"]
+            "valentina.ghidini <vale.ghidini95@gmail.com"]
 readme = "README.md"
 include = ["data/winequality-red.csv"]
 license = "MIT"
