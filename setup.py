@@ -10,7 +10,7 @@ def parse_requirements(filename):
     return distutils.text_file.TextFile(filename=file).readlines()
 
 
-setup(name='xi',
+setup(name='xi-method',
       version='0.1.0',
       python_requires=">=3.8",
       description='Xi - Post hoc explanations',
