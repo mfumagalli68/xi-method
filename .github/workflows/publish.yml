@@ -4,6 +4,10 @@ on:
   push:
     branches:
       - main
+  workflow_run:
+    workflows: [ "xi_method" ]
+    types:
+      - completed
 
 jobs:
   publish:

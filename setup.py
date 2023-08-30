@@ -11,7 +11,7 @@ def parse_requirements(filename):
 
 
 setup(name='xi_method-method',
-      version='0.1.0',
+      version='0.1.2',
       python_requires=">=3.8",
       description='Xi - Post hoc explanations',
       url='https://github.com/mfumagalli68/xi/tree/main',
