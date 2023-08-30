@@ -110,9 +110,8 @@ class KLService(SeparationMeasurement):
     def __init__(self, row, col, replica, idx_to_col):
         super(KLService, self).__init__(row, col, replica, idx_to_col)
 
-    def _compute(self, dmass, **kwargs):
-        condmass = kwargs.get('condmass')
-        totalmass = kwargs.get('totalmass')
+    def _compute(self, dmass,condmass,totalmass, **ignored):
+
         kl = np.multiply(condmass, np.log(np.divide(condmass, totalmass)))
         kl[np.isnan(kl)] = 0
         return np.sum(kl)
