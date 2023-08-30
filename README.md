@@ -1,5 +1,9 @@
 ![build](https://github.com/mfumagalli68/xi/actions/workflows/build.yml/badge.svg)
 ![coverage](https://codecov.io/gh/mfumagalli68/xi/branch/main/graph/badge.svg)
+[![Python 3.8](https://img.shields.io/badge/python-3.8-blue.svg)](https://www.python.org/downloads/release/python-380/)
+[![Python 3.9](https://img.shields.io/badge/python-3.9-blue.svg)](https://www.python.org/downloads/release/python-390/)
+[![Python 3.10](https://img.shields.io/badge/python-3.10-blue.svg)](https://www.python.org/downloads/release/python-310/)
+[![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/downloads/release/python-311/)
 
 
 <p align="center">
@@ -69,6 +73,8 @@ For the classification tasks, you can specify the number of partitions in three 
   covariates.
 - `discrete`: A list of covariates name you want to treat as categorical.
 - `obs`: A dictionary mapping covariates name to number of desired observations in each partition.
+
+For regression tasks, you can only specify `m` as an integer.<br>
 
 A default `m` value will be computed if nothing is provided by the user, as indicated in the paper.<br>
 

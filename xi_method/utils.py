@@ -17,23 +17,27 @@ def timeit(func):
         total_time = end_time - start_time
         print(f'Total execution time: {total_time:.4f} seconds')
         return result
+
     return timeit_wrapper
 
-def partition_validation(arg: Union[int, Dict, float,List], k: int) -> None:
+
+def partition_validation(arg: Union[int, Dict, float, List], k: int) -> None:
     """
     Validate partition specified by the user
 
-    :param arg:
-    :param k:
-    :return:
+    :param arg: m,obs,discrete
+
+    :param k: number of covariates
+
+    :return: Throw an exception if partitions doesn't respect criteria ( negative, float or number of partitions specification
+    greater than number of covariates)
     """
     if isinstance(arg, float):
         raise TypeError(f"Number of partitions need to be a positive integer")
 
     if isinstance(arg, int):
         if arg <= 0:
-            raise ValueError(f"Number of partitions could only be a strictly positive integer"
-                             f"or a dictionary.")
+            raise ValueError(f"Number of partitions could only be a strictly positive integer or a dictionary.")
     if isinstance(arg, dict):
         keys = len(list(arg.keys()))
         if keys > k:
@@ -41,9 +45,9 @@ def partition_validation(arg: Union[int, Dict, float,List], k: int) -> None:
                           "is greater than number of features")
 
 
-def separation_measurement_validation(measure: Union[List, AnyStr]) -> Union[XiError,int]:
+def separation_measurement_validation(measure: Union[List, AnyStr]) -> Union[XiError, int]:
     """
-    Validate separation measurement, if not implemented throw an error
+    Validate separation measurement choice by the user, if not implemented throw an error
 
     :param measure:
     :return:
@@ -57,23 +61,28 @@ def separation_measurement_validation(measure: Union[List, AnyStr]) -> Union[XiE
 
     return 1
 
-def get_separation_measurement() -> AnyStr:
-    """
-    Validate separation measurement, if not implemented throw an error
 
-    :param measure:
-    :return:
+def get_separation_measurement() -> None:
+    """
+    Get a list of implemented separation measurement
+
+    :return: None, prnt a list of implemented separation measurement
     """
 
     seps = '\n'.join(list(builder_mapping.keys()))
     logging.info(f"These are the separation measurement implemented in this package: " \
-           f"{seps}")
+                 f"{seps}")
 
-def check_args_overlap(*args):
+
+def check_args_overlap(*args) -> None:
+
     """
+    Check if partition argument overlaps.
+    Users can't specify more than one partition for covariate
 
-    :param args:
-    :return:
+    :param args: m,obs,discrete : partition parameter
+    
+    :return: Throw an exception if a key is found more than one in the args.
     """
     if any(isinstance(i, int) for i in args):
         return 0
@@ -90,4 +99,3 @@ def check_args_overlap(*args):
                       f"Please specify parameters differently.")
     else:
         return 1
-

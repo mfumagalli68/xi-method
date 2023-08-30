@@ -3,7 +3,7 @@ from xi_method.ximp import XIClassifier
 import pandas as pd
 import os
 
-path = 'tests/data/winequality-red.csv'
+path = 'xi_method/data/winequality-red.csv'
 def test_plot():
 
     k=3

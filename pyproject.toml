@@ -7,7 +7,7 @@ authors = ["marco.fumagalli <m.fumagalli68@gmail.com>",
 maintainers = ["marco.fumagalli <m.fumagalli68@gmail.com>",
     "valentina.ghidini <vale.ghidini95@gmail.com"]
 readme = "README.md"
-include = ["tests/data/winequality-red.csv"]
+include = ["data/winequality-red.csv"]
 license = "MIT"
 keywords = ["XaI", "explainable", "AI"]
 classifiers = [

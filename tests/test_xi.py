@@ -2,7 +2,7 @@ import os.path
 from xi_method.ximp import *
 import numpy as np
 
-path = 'tests/data/winequality-red.csv'
+path = 'xi_method/data/winequality-red.csv'
 
 
 def test_separation_measurement_m_int():

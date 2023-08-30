@@ -9,7 +9,6 @@ from xi_method.utils import *
 from tqdm import tqdm
 
 
-
 class XI(object):
 
     def __init__(self,
@@ -86,11 +85,9 @@ class XIClassifier(XI):
         :param y: target variable
         :param replicates: number of replications
         :param separation_measurement: Separation measurement.
-        :param verbose:
-        Read documentation for the implemented ones.
-        You can specify one or more than one as list.
+        :param verbose: True, for logging. Default False.
 
-        :return: dictionary mapping separation measurement name to object containing explanations
+        :return: Dictionary mapping separation measurement name to object containing explanations
         for each covariates
         """
 
@@ -254,7 +251,6 @@ class XIRegressor(XI):
         for _sep_measure, builder_name in zip(separation_measurement, builder_names):
             factory.register_builder(_sep_measure, builder_name())
 
-
         for replica in range(replicates):
 
             for idx in tqdm(range(k)):
@@ -299,5 +295,3 @@ class XIRegressor(XI):
             _sep.avg()
 
         return seps
-
-
