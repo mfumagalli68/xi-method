@@ -17,7 +17,7 @@
 
 **Xi** is a python package that implements the paper 
 "Explaining classifiers with measures of statistical association"[[1]](#1)
-and "The Xi method: unlocking the mysteries of regression with Statistics"[[2](#2)<br>
+and "The Xi method: unlocking the mysteries of regression with Statistics"[[2]](#2)<br>
 
 The growing size and complexity of data as well as the need of accurate predictions, forces analysts to use black-box
 model. While the success of those models extends statistical application, it also increases the need for

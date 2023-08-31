@@ -9,7 +9,7 @@ from xi_method.exceptions import XiError
 from xi_method.separation.measurement import builder_mapping
 from xi_method import _ROOT
 
-def load_wine_quality_dataset():
+def load_wine_quality_red_dataset():
 
     path = _ROOT / 'data' / 'winequality-red.csv'
     data = pd.read_csv(path,sep=";")
