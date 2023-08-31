@@ -102,7 +102,7 @@ class XIClassifier(XI):
         X = X.values if isinstance(X, pd.DataFrame) else X
         n, k = X.shape
 
-        X = np.float32(X)
+        #X = np.float32(X)
 
         partition_validation(self.m, k)
         partition_validation(self.obs, k)
@@ -194,7 +194,7 @@ class XIRegressor(XI):
 
     def __init__(self,
                  m: Union[dict, int] = 20,
-                 grid: int = None,
+                 grid: int = 100,
                  ties=False,
                  type='regressor'):
         super(XIRegressor, self).__init__(m=m, grid=grid, ties=ties, type=type)

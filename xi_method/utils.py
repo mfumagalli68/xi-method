@@ -15,6 +15,12 @@ def load_wine_quality_dataset():
     data = pd.read_csv(path,sep=";")
     return data
 
+def load_bottle_dataset():
+
+    path = _ROOT / 'data' / 'bottle.csv'
+    data = pd.read_csv(path,sep=",")
+    return data
+
 def timeit(func):
     @wraps(func)
     def timeit_wrapper(*args, **kwargs):
@@ -106,3 +112,4 @@ def check_args_overlap(*args) -> None:
                       f"Please specify parameters differently.")
     else:
         return 1
+

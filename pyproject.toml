@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "xi-method"
-version = "0.1.4"
+version = "0.1.5"
 description = "Post hoc explanations for ML models through measures of statistical dependence"
 authors = ["marco.fumagalli <m.fumagalli68@gmail.com>",
             "valentina.ghidini <vale.ghidini95@gmail.com"]
@@ -8,11 +8,13 @@ maintainers = ["marco.fumagalli <m.fumagalli68@gmail.com>",
             "valentina.ghidini <vale.ghidini95@gmail.com"]
 readme = "README.md"
 include = ["data/winequality-red.csv"]
+repository = "https://github.com/mfumagalli68/xi-method"
 license = "MIT"
 keywords = ["XaI", "explainable", "AI"]
 classifiers = [
     "Topic :: Software Development :: Build Tools",
     "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
@@ -25,7 +27,6 @@ classifiers = [
 python = ">=3.8"
 numpy = "^1.23.2"
 pytest = "^7.0"
-line-profiler-pycharm = "^1.1.0"
 pandas = "^2.0.3"
 scipy=[
     { version = "^1.11.2", python = "~3.9"},

@@ -2,8 +2,6 @@ from xi_method.ximp import *
 import numpy as np
 
 
-
-
 def test_separation_measurement_m_int():
     np.random.seed(3)
     df = load_wine_quality_dataset()
@@ -112,3 +110,22 @@ def test_separation_measurement_L2():
                                exp,
                                rtol=0.05,
                                atol=0.05)
+
+
+def test_separation_measurement_regressor_hellinger():
+
+    np.random.seed(2)
+    Y = np.random.normal(size=1000)
+    X = np.random.normal(3, 7, size=10 * 1000)  # df_np[:, 1:11]
+    X = X.reshape((1000, 10))
+
+    xi = XIRegressor(m=20)
+    p = xi.explain(X=X, y=Y, replicates=1, separation_measurement='Hellinger')
+
+    exp = np.array(
+        [0.01293297, 0.01992071, 0.01205301, 0.01015738, 0.01004335, 0.01540372, 0.02567093, 0.001070475, 0.00821346,
+         0.01461179])
+    np.testing.assert_allclose(p.get('Hellinger').explanation,
+                               exp,
+                               rtol=0.09,
+                               atol=0.09)

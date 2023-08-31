@@ -15,7 +15,9 @@
 </p>
 
 
-**Xi** is a python package that implements the paper "Probabilistic Sensitivity Measures and Classification Tasks".<br>
+**Xi** is a python package that implements the paper 
+"Explaining classifiers with measures of statistical association"[[1]](#1)
+and "The Xi method: unlocking the mysteries of regression with Statistics"[[2](#2)<br>
 
 The growing size and complexity of data as well as the need of accurate predictions, forces analysts to use black-box
 model. While the success of those models extends statistical application, it also increases the need for
@@ -37,11 +39,11 @@ To sum up, **Xi** has three main advantages:
 
 - Model agnostic: as long as your model outputs predictions, you can use **Xi** with any model
 - Data agnostic: **Xi** works with structured (tabular) and unstructured data ( text, image ).
-- Computationally cheap
+- Computationally reasonable
 
 # Installation
 
-Install from pypy:
+Install from pypi:
 
 ```[python]
 pip install xi-method
@@ -56,9 +58,10 @@ variable.<br>
 
 ```[python]
 from xi_method.utils import load_dataset
+from xi_method.ximp import *
 
 # load wine quality
-df = load_wine_quality_dataset()
+df = load_wine_quality_red_dataset()
 
 Y = df.quality
 df.drop(columns='quality', inplace=True)
@@ -112,9 +115,18 @@ measurement or more than one, using a list.
 p = xi.explain(X=x_test, y=y_pred, separation_measurement=['L1','Kuiper'])
 ```
 
-Implemented separation measurement can be viewed running:
+Implemented separation measurement:
+
+- Kullback - Leibler
+- Kuiper
+- L1
+- L2
+- Hellinger
+
+You can get a list of implemented separation measurement running:
 
 ```[python]
+from xi_method.utils import *
 get_separation_measurement()
 ```
 
@@ -123,3 +135,14 @@ Plot your result:
 ```[python]
 plot(separation_measurement='L1', type='tabular', explain=P, k=10)
 ```
+
+
+## References
+<a id="1">[1]</a> 
+E. Borgonovo, V. Ghidini, R. Hahn a, E. Plischke (2023). 
+Explaining classifiers with measures of statistical association
+Computational Statistics and Data Analysis, Volume 182, June 2023, 107701
+
+<a id="2">[2]</a> 
+V. Ghidini (2023). 
+The Xi method: unlocking the mysteries of regression with Statistics
