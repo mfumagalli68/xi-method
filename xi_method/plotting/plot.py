@@ -14,7 +14,7 @@ def plot(type: AnyStr, explain: Dict, separation_measurement: AnyStr, **options)
 
 
 def _tabular_plot(explain: Dict, separation_measurement: AnyStr, **options):
-    title = options.get('title', 'Post hoc explainations')
+    title = options.get('title', 'Explanations')
     figsize = options.get('figsize', (10, 10))
     color = options.get('color', 'blue')
     k = options.get('k', 3)
